@@ -13,7 +13,7 @@ libraryDependencies ++= {
   Seq(
     "org.scalaz" %% "scalaz-core" % "6.0.4",
     "net.liftweb" %% "lift-json-scalaz" % "2.5-M2",
-    "commons-codec" % "commons-codec" % "1.6",
+    "commons-codec" % "commons-codec" % "1.7",
     "commons-lang" % "commons-lang" % "2.6",
     "commons-validator" % "commons-validator" % "1.4.0",
     "org.apache.httpcomponents" % "httpcore" % httpVersion,

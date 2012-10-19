@@ -25,13 +25,13 @@ import org.scalacheck.Gen
 import org.scalacheck.Arbitrary._
 import org.scalacheck.Prop._
 
-class ProvisioningSpecs
+class ProvisioningAPISpecs
   extends Specification
   with ScalaCheck { override def is =
 
-  "Provisioning Specs".title                                                                                            ^
+  "Provisioning API Specs".title                                                                                        ^
   """
-  The provisioning specs verify the functionality of third party provisioning API's.
+  The provisioning API specs verify the functionality of third party provisioning API's.
   """                                                                                                                   ^
                                                                                                                         p^
   "Provisioning should => POST /provision/stackmob"                                                                     ^

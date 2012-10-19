@@ -11,4 +11,6 @@ the specs requires [sbt](http://www.scala-sbt.org/). Below are the installation 
 2. ```brew install sbt```
 3. ```git clone git@github.com:stackmob/lucid.git```
 4. ```cd lucid```
-5. ```sbt test```
+5. ```sbt "test-only *.ProvisioningAPISpecs"```
+
+Note, brew installs sbt >= 0.12.1 so if you're not using Hombrew ensure you have at least this version (e.g. if you are using Macports).
