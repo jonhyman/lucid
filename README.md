@@ -8,7 +8,7 @@ the specs requires [sbt](http://www.scala-sbt.org/). Below are the installation 
 
 ## Mac
 1. install [Homebrew](http://mxcl.github.com/homebrew/)
-2. brew install sbt
-3. git clone git@github.com:stackmob/lucid.git
-4. cd lucid
-5. sbt test
+2. ```brew install sbt```
+3. ```git clone git@github.com:stackmob/lucid.git```
+4. ```cd lucid```
+5. ```sbt test```
