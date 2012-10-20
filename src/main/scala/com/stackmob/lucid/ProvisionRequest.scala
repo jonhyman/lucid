@@ -57,21 +57,6 @@ object ChangePlanRequest {
 
 }
 
-object LucidException {
-
-  private[lucid] val errorRootJSONKey = "errors"
-
-  implicit val leadfootExceptionJSON = new JSON[LucidException] {
-    override def read(json: JValue): Result[LucidException] = {
-      fromJSON[String](json).map(new LucidException(_))
-    }
-    override def write(e: LucidException): JValue = {
-      JString(e.getMessage)
-    }
-  }
-
-}
-
 private[lucid] object InternalProvisionResponse {
 
   val configVarsKey = "config-vars"

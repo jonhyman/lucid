@@ -16,14 +16,14 @@ package com.stackmob.lucid.tests
  * limitations under the License.
  */
 
+import org.scalacheck.Gen
+import org.scalacheck.Arbitrary._
+import org.scalacheck.Prop._
 import org.specs2._
 import org.specs2.mock.Mockito
 import scalaz._
 import scalaz.effects._
 import Scalaz._
-import org.scalacheck.Gen
-import org.scalacheck.Arbitrary._
-import org.scalacheck.Prop._
 
 class ProvisioningAPISpecs
   extends Specification
@@ -52,4 +52,5 @@ class ProvisioningAPISpecs
     "Return 404 not found if no plan exists for the given id"                                                           ! pending ^
     "Return 50x if there is an error handling the request"                                                              ! pending ^
                                                                                                                         end
+
 }

@@ -19,8 +19,8 @@ package com.stackmob.lucid
 import java.net.{HttpURLConnection, URI}
 import java.nio.charset.Charset
 import net.liftweb.json.{compact, parse, render}
-import net.liftweb.json.scalaz.JsonScalaz._
 import net.liftweb.json.JsonAST._
+import net.liftweb.json.scalaz.JsonScalaz._
 import org.apache.commons.codec.binary.{StringUtils, Base64}
 import org.apache.commons.lang
 import org.apache.commons.validator.routines.EmailValidator
@@ -28,6 +28,7 @@ import org.apache.http.Consts._
 import org.apache.http.Header
 import org.apache.http.HttpHeaders
 import org.apache.http.message.BasicHeader
+import ProvisioningClient._
 import scalaz._
 import scalaz.effects._
 import Scalaz._
@@ -51,9 +52,6 @@ class ProvisioningClient(host: String = "localhost",
                          charset: Charset = UTF_8,
                          moduleId: String,
                          password: String) {
-
-  private val contentTypeHeader: Header = new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8")
-  private[lucid] val provisionURL = "stackmob/provision"
 
   /**
    * Provision a module for an app.
@@ -183,19 +181,20 @@ class ProvisioningClient(host: String = "localhost",
   }
 
   private def handleProvisionResponse(expectedCode: Int, resp: HttpResponse): Validation[LucidError, ProvisionResponse] = {
-    handleResponseWithBody[InternalProvisionResponse](expectedCode, resp).flatMap { r =>
-      validating(new URI(~resp.headers.flatMap(_.list.find(h => HttpHeaders.LOCATION.equalsIgnoreCase(h.getName)).map(_.getValue))))
-        .mapFailure(_ => FullErrorResponse(resp.code, nel("Invalid or missing location header")))
-        .flatMap(uri => ProvisionResponse(r.configVars, uri).success)
+    handleResponseWithBody[InternalProvisionResponse](expectedCode, resp)
+      .flatMap { r =>
+        validating(new URI(~resp.headers.flatMap(_.list.find(h => HttpHeaders.LOCATION.equalsIgnoreCase(h.getName)).map(_.getValue))))
+          .mapFailure(_ => FullErrorResponse(resp.code, nel("Invalid or missing location header")))
+          .flatMap(uri => ProvisionResponse(r.configVars, uri).success)
       }
+      .flatMap(validateContentType(_, resp))
   }
 
   private def handleResponseWithBody[T : JSONR](expectedCode: Int, resp: HttpResponse): Validation[LucidError, T] = {
     if (resp.code === expectedCode) {
-      fromJSON[T](parse(~resp.body)) match {
-        case Success(s) => s.success
-        case Failure(e) => FullErrorResponse(resp.code, toErrors(e)).fail
-      }
+      fromJSON[T](parse(~resp.body))
+        .mapFailure(errors => FullErrorResponse(resp.code, toErrors(errors)))
+        .flatMap(validateContentType(_, resp))
     } else {
       handleErrors(resp)
     }
@@ -203,12 +202,20 @@ class ProvisioningClient(host: String = "localhost",
 
   private def handleErrors[T](resp: HttpResponse): Validation[LucidError, T] = {
     if (~resp.body.map(_.length) > 0) {
-      fromJSON[Int => LucidError](parse(~resp.body)).fold(
-        success = f => f(resp.code).fail,
-        failure = errors => FullErrorResponse(resp.code, toErrors(errors)).fail
-      )
+      fromJSON[Int => LucidError](parse(~resp.body))
+        .mapFailure(errors => FullErrorResponse(resp.code, toErrors(errors)))
+        .flatMap(r => validateContentType(r, resp).flatMap(f => f(resp.code).fail))
     } else {
       EmptyErrorResponse(resp.code).fail
+    }
+  }
+
+  private def validateContentType[T](r: T, resp: HttpResponse): Validation[LucidError, T] = {
+    val h = resp.headers.flatMap(_.list.find(h => HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(h.getName)))
+    if (~h.map(_.getValue.equalsIgnoreCase(contentTypeHeader.getValue))) {
+      r.success
+    } else {
+      UnexpectedErrorResponse("Invalid content type").fail
     }
   }
 
@@ -222,7 +229,7 @@ class ProvisioningClient(host: String = "localhost",
 
   implicit val codeToErrorResponseJSONR = new JSONR[Int => LucidError] {
     override def read(json: JValue): Result[Int => LucidError] = {
-      (field[List[String]]("errors")(json)).map(errors => {
+      (field[List[String]](errorRootJSONKey)(json)).map(errors => {
         if (errors.length > 0) {
           FullErrorResponse(_, nel(errors.head, errors.tail))
         } else {
@@ -232,6 +239,12 @@ class ProvisioningClient(host: String = "localhost",
     }
   }
 
+}
+
+object ProvisioningClient {
+  val errorRootJSONKey = "errors"
+  val provisionURL = "stackmob/provision"
+  val contentTypeHeader = new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8")
 }
 
 sealed trait LucidError
