@@ -45,11 +45,11 @@ import ValidationT._
  * @param moduleId the module id
  * @param password the basic auth password for the third party module
  */
-class ProvisioningClient(host: String = "localhost",
-                         protocol: String = "http",
-                         port: Int = 8080,
+class ProvisioningClient(val host: String = "localhost",
+                         val protocol: String = "http",
+                         val port: Int = 8080,
+                         val charset: Charset = UTF_8,
                          httpClient: HttpClient = new ApacheHttpClient,
-                         charset: Charset = UTF_8,
                          moduleId: String,
                          password: String) {
 

@@ -16,8 +16,8 @@ package com.stackmob.lucid.tests
  * limitations under the License.
  */
 
-import java.net.{HttpURLConnection, URI}
 import com.stackmob.lucid._
+import java.net.{HttpURLConnection, URI}
 import net.liftweb.json.{compact, render}
 import net.liftweb.json.JsonDSL._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -32,30 +32,35 @@ import Scalaz._
 
 class ProvisioningClientSpecs
   extends Specification
-  with ScalaCheck { override def is =
-
+  with ScalaCheck { override def is = sequential                                                                        ^
   "Provisioning Client Specs".title                                                                                     ^
   """
-  The provisioning client specs verify the functionality of the provisioning client.
+  Verify the functionality of the provisioning client.
   """                                                                                                                   ^
                                                                                                                         p^
   "Provisioning should => POST /provision/stackmob"                                                                     ^
     "Return 201 ok if the provision was successful"                                                                     ! provision().created ^
-    "Return 401 not authorized if authentication fails"                                                                 ! provision().notAuthorized ^
+    "Return 401 not authorized if authorization fails"                                                                  ! provision().notAuthorized ^
     "Return 409 conflict if a plan exists for the given id"                                                             ! provision().conflict ^
     "Return 50x if there is an error handling the request"                                                              ! provision().error ^
                                                                                                                         endp^
   "Deprovisioning should => DELETE /provision/stackmob/:id"                                                             ^
     "Return 204 no content if the deprovision was successful"                                                           ! deprovision().noContent ^
-    "Return 401 not authorized if authentication fails"                                                                 ! deprovision().notAuthorized ^
+    "Return 401 not authorized if authorization fails"                                                                  ! deprovision().notAuthorized ^
     "Return 404 not found if no plan exists for the given id"                                                           ! deprovision().notFound ^
     "Return 50x if there is an error handling the request"                                                              ! deprovision().error ^
                                                                                                                         endp^
   "Changing a plan should => PUT /provision/stackmob/:id"                                                               ^
     "Return 204 no content if the plan was changed"                                                                     ! change().noContent ^
-    "Return 401 not authorized if authentication fails"                                                                 ! change().notAuthorized ^
+    "Return 401 not authorized if authorization fails"                                                                  ! change().notAuthorized ^
     "Return 404 not found if no plan exists for the given id"                                                           ! change().notFound ^
     "Return 50x if there is an error handling the request"                                                              ! change().error ^
+                                                                                                                        endp^
+  "Single sign on should => POST /:sso-path"                                                                            ^
+    "Return 302 redirect if the single sign on was successful"                                                          ! pending ^
+    "Return 403 forbidden if authentication fails"                                                                      ! pending ^
+    "Return 404 not found if no plan exists for the given id"                                                           ! pending ^
+    "Return 50x if there is an error handling the request"                                                              ! pending ^
                                                                                                                         end
 
   case class provision() extends CommonContext {
@@ -69,12 +74,7 @@ class ProvisioningClientSpecs
           headers = List(new BasicHeader(HttpHeaders.LOCATION, "http://localhost/%s/%s".format(provisionURL, request.id)), contentTypeHeader).toNel
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
-        client.provision(request).unsafePerformIO.either must beRight.like {
-          case response: ProvisionResponse => {
-            (response.configVars must haveTheSameElementsAs(configVars)) and
-              (response.location must beEqualTo(new URI("http://localhost/%s/%s".format(provisionURL, request.id))))
-          }
-        }
+        client must resultInProvisionResponse(request)
       }
     }
 
@@ -87,9 +87,7 @@ class ProvisioningClientSpecs
           headers = None
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
-        client.provision(request).unsafePerformIO.either must beLeft.like {
-          case e: EmptyErrorResponse => e.code must beEqualTo(HttpURLConnection.HTTP_UNAUTHORIZED)
-        }
+        client must resultInProvisionError(request, HttpURLConnection.HTTP_UNAUTHORIZED)
       }
     }
 
@@ -102,9 +100,7 @@ class ProvisioningClientSpecs
           headers = None
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
-        client.provision(request).unsafePerformIO.either must beLeft.like {
-          case e: EmptyErrorResponse => e.code must beEqualTo(HttpURLConnection.HTTP_CONFLICT)
-        }
+        client must resultInProvisionError(request, HttpURLConnection.HTTP_CONFLICT)
       }
     }
 
@@ -117,9 +113,7 @@ class ProvisioningClientSpecs
           headers = List(contentTypeHeader).toNel
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
-        client.provision(request).unsafePerformIO.either must beLeft.like {
-          case e: FullErrorResponse => e.code must beEqualTo(HttpURLConnection.HTTP_INTERNAL_ERROR)
-        }
+        client must resultInProvisionError(request, HttpURLConnection.HTTP_INTERNAL_ERROR)
       }
     }
 
@@ -136,7 +130,7 @@ class ProvisioningClientSpecs
           headers = None
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
-        client.deprovision(request).unsafePerformIO.either must beRight
+        client must resultInDeprovisionResponse(request)
       }
     }
 
@@ -149,9 +143,7 @@ class ProvisioningClientSpecs
           headers = None
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
-        client.deprovision(request).unsafePerformIO.either must beLeft.like {
-          case e: EmptyErrorResponse => e.code must beEqualTo(HttpURLConnection.HTTP_UNAUTHORIZED)
-        }
+        client must resultInDeprovisionError(request, HttpURLConnection.HTTP_UNAUTHORIZED)
       }
     }
 
@@ -164,9 +156,7 @@ class ProvisioningClientSpecs
           headers = None
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
-        client.deprovision(request).unsafePerformIO.either must beLeft.like {
-          case e: EmptyErrorResponse => e.code must beEqualTo(HttpURLConnection.HTTP_NOT_FOUND)
-        }
+        client must resultInDeprovisionError(request, HttpURLConnection.HTTP_NOT_FOUND)
       }
     }
 
@@ -179,9 +169,7 @@ class ProvisioningClientSpecs
           headers = List(contentTypeHeader).toNel
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
-        client.deprovision(request).unsafePerformIO.either must beLeft.like {
-          case e: FullErrorResponse => e.code must beEqualTo(HttpURLConnection.HTTP_INTERNAL_ERROR)
-        }
+        client must resultInDeprovisionError(request, HttpURLConnection.HTTP_INTERNAL_ERROR)
       }
     }
 
@@ -198,7 +186,7 @@ class ProvisioningClientSpecs
           headers = None
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
-        client.changePlan(request).unsafePerformIO.either must beRight
+        client must resultInChangePlanResponse(request)
       }
     }
 
@@ -211,9 +199,7 @@ class ProvisioningClientSpecs
           headers = None
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
-        client.changePlan(request).unsafePerformIO.either must beLeft.like {
-          case e: EmptyErrorResponse => e.code must beEqualTo(HttpURLConnection.HTTP_UNAUTHORIZED)
-        }
+        client must resultInChangePlanError(request, HttpURLConnection.HTTP_UNAUTHORIZED)
       }
     }
 
@@ -226,9 +212,7 @@ class ProvisioningClientSpecs
           headers = None
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
-        client.changePlan(request).unsafePerformIO.either must beLeft.like {
-          case e: EmptyErrorResponse => e.code must beEqualTo(HttpURLConnection.HTTP_NOT_FOUND)
-        }
+        client must resultInChangePlanError(request, HttpURLConnection.HTTP_NOT_FOUND)
       }
     }
 
@@ -241,9 +225,7 @@ class ProvisioningClientSpecs
           headers = List(contentTypeHeader).toNel
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
-        client.changePlan(request).unsafePerformIO.either must beLeft.like {
-          case e: FullErrorResponse => e.code must beEqualTo(HttpURLConnection.HTTP_INTERNAL_ERROR)
-        }
+        client must resultInChangePlanError(request, HttpURLConnection.HTTP_INTERNAL_ERROR)
       }
     }
 
