@@ -21,12 +21,15 @@ import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._
 import net.liftweb.json.scalaz.JsonScalaz._
 
+case class SSORequest(id: String, token: String, email: String, path: URI, timestamp: Long)
 case class ProvisionRequest(override val id: String, plan: String, email: String) extends BasicAuthRequest(id)
 case class ChangePlanRequest(override val id: String, plan: String) extends BasicAuthRequest(id)
 case class DeprovisionRequest(override val id: String) extends BasicAuthRequest(id)
 abstract class BasicAuthRequest(val id: String)
 
-case class ProvisionResponse(configVars: Map[String, String], location: URI)
+case class ProvisionResponse(configVars: Map[String, String], override val location: URI) extends LocationResponse(location)
+case class SSOResponse(override val location: URI) extends LocationResponse(location)
+abstract class LocationResponse(val location: URI)
 private[lucid] case class InternalProvisionResponse(configVars: Map[String, String])
 
 class LucidException(message: String, throwable: Throwable = null) extends Exception(message, throwable)

@@ -85,6 +85,13 @@ class ApacheHttpClient extends HttpClient {
     try {
       val httpParams = client.getParams
 
+      /* uncoment this to use a proxy server
+      import org.apache.http.HttpHost
+      import org.apache.http.conn.params.ConnRoutePNames
+      val proxy = new HttpHost("127.0.0.1", 8888, "http")
+      httpParams.setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy)
+      */
+
       request.headers.foreach(_.foreach(httpMessage.addHeader(_)))
 
       httpMessage.setURI(getURI(request))

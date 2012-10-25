@@ -17,7 +17,7 @@ package com.stackmob.lucid.tests
  */
 
 import com.stackmob.lucid._
-import java.net.HttpURLConnection
+import java.net.{HttpURLConnection, URI}
 import java.util.Properties
 import org.scalacheck.Gen
 import org.scalacheck.Prop._
@@ -34,47 +34,85 @@ class ProvisioningServerSpecs
   "Provisioning should => POST /provision/stackmob"                                                                     ^
     "Return 201 ok if the provision was successful"                                                                     ! provision().created ^
     "Return 401 not authorized if authorization fails"                                                                  ! provision().notAuthorized ^
-    "Return 409 conflict if a plan exists for the given id"                                                             ! provision().conflict
+    "Return 409 conflict if a plan exists for the given id"                                                             ! provision().conflict ^
                                                                                                                         endp^
   "Deprovisioning should => DELETE /provision/stackmob/:id"                                                             ^
     "Return 204 no content if the deprovision was successful"                                                           ! deprovision().noContent ^
     "Return 401 not authorized if authorization fails"                                                                  ! deprovision().notAuthorized ^
-    "Return 404 not found if no plan exists for the given id"                                                           ! deprovision().notFound
+    "Return 404 not found if no plan exists for the given id"                                                           ! deprovision().notFound ^
                                                                                                                         endp^
   "Changing a plan should => PUT /provision/stackmob/:id"                                                               ^
     "Return 204 no content if the plan was changed"                                                                     ! change().noContent ^
     "Return 401 not authorized if authorization fails"                                                                  ! change().notAuthorized ^
-    "Return 404 not found if no plan exists for the given id"                                                           ! change().notFound
+    "Return 404 not found if no plan exists for the given id"                                                           ! change().notFound ^
                                                                                                                         endp^
   "Single sign on should => POST /:sso-path"                                                                            ^
-    "Return 302 redirect if the single sign on was successful"                                                          ! pending ^
-    "Return 403 forbidden if authentication fails"                                                                      ! pending ^
-    "Return 404 not found if no plan exists for the given id"                                                           ! pending ^
-    "Return 50x if there is an error handling the request"                                                              ! pending ^
+    "Return 302 redirect if the single sign on was successful"                                                          ! sso().redirect ^
+    "Return 403 forbidden if authentication fails"                                                                      ! sso().forbiddenAuth ^
+    "Return 403 forbidden if the timestamp is older than five minutes"                                                  ! sso().forbiddenTimestamp ^
+    "Return 404 not found if no plan exists for the given id"                                                           ! sso().notFound ^
                                                                                                                         end
 
   // use scalacheck to randomize requests, but we don't want duplicate requests
   implicit val params = set(minTestsOk -> 1)
 
+  case class sso() extends ProvisioningContext {
+
+    def redirect = apply {
+      forAllNoShrink(genProvisionRequest) { (request) =>
+        val timestamp = System.currentTimeMillis
+        val token = createToken(request.id, request.email, salt, timestamp)
+        val client = new ProvisioningClient(host = hostname, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        (client must resultInProvisionResponse(request)) and
+          (client must resultInSSOResponse(SSORequest(request.id, token, request.email, ssoPath, timestamp)))
+      }
+    }
+
+    def forbiddenAuth = apply {
+      forAllNoShrink(genSSORequestViaProps) { (request) =>
+        val client = new ProvisioningClient(host = hostname, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        client must resultInSSOError(request.copy(email = "invalid@invalid.com"), HttpURLConnection.HTTP_FORBIDDEN)
+      }
+    }
+
+    def forbiddenTimestamp = apply {
+      forAllNoShrink(genSSORequestViaProps) { (request) =>
+        val client = new ProvisioningClient(host = hostname, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        client must resultInSSOError(
+          request.copy(token = createToken(request.id, request.email, salt, 1), timestamp = 1),
+          HttpURLConnection.HTTP_FORBIDDEN
+        )
+      }
+    }
+
+    def notFound = apply {
+      forAllNoShrink(genSSORequestViaProps) { (request) =>
+        val client = new ProvisioningClient(host = hostname, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        client must resultInSSOError(request, HttpURLConnection.HTTP_NOT_FOUND)
+      }
+    }
+
+  }
+
   case class provision() extends ProvisioningContext {
 
     def created = apply {
-      forAllNoShrink(genProvisionRequestWithPlan) { (request) =>
-        val client = new ProvisioningClient(moduleId = moduleId, password = password)
+      forAllNoShrink(genProvisionRequestViaProps) { (request) =>
+        val client = new ProvisioningClient(host = hostname, protocol = protocol, port = port, moduleId = moduleId, password = password)
         client must resultInProvisionResponse(request)
       }
     }
 
     def notAuthorized = apply {
-      forAllNoShrink(genProvisionRequestWithPlan) { (request) =>
-        val client = new ProvisioningClient(moduleId = moduleId, password = "incorrect")
+      forAllNoShrink(genProvisionRequestViaProps) { (request) =>
+        val client = new ProvisioningClient(host = hostname, protocol = protocol, port = port, moduleId = moduleId, password = "incorrect")
         client must resultInProvisionError(request, HttpURLConnection.HTTP_UNAUTHORIZED)
       }
     }
 
     def conflict = apply {
-      forAllNoShrink(genProvisionRequestWithPlan) { (request) =>
-        val client = new ProvisioningClient(moduleId = moduleId, password = password)
+      forAllNoShrink(genProvisionRequestViaProps) { (request) =>
+        val client = new ProvisioningClient(host = hostname, protocol = protocol, port = port, moduleId = moduleId, password = password)
         (client must resultInProvisionResponse(request)) and
           (client must resultInProvisionError(request, HttpURLConnection.HTTP_CONFLICT))
       }
@@ -85,8 +123,8 @@ class ProvisioningServerSpecs
   case class deprovision() extends ProvisioningContext {
 
     def noContent = apply {
-      forAllNoShrink(genProvisionRequestWithPlan) { (request) =>
-        val client = new ProvisioningClient(moduleId = moduleId, password = password)
+      forAllNoShrink(genProvisionRequestViaProps) { (request) =>
+        val client = new ProvisioningClient(host = hostname, protocol = protocol, port = port, moduleId = moduleId, password = password)
         ((client must resultInProvisionResponse(request)) and
           (client must resultInDeprovisionResponse(DeprovisionRequest(request.id))))
       }
@@ -94,14 +132,14 @@ class ProvisioningServerSpecs
 
     def notAuthorized = apply {
       forAllNoShrink(genDeprovisionRequest) { (request) =>
-        val client = new ProvisioningClient(moduleId = moduleId, password = "incorrect")
+        val client = new ProvisioningClient(host = hostname, protocol = protocol, port = port, moduleId = moduleId, password = "incorrect")
         client must resultInDeprovisionError(request, HttpURLConnection.HTTP_UNAUTHORIZED)
       }
     }
 
     def notFound = apply {
       forAllNoShrink(genDeprovisionRequest) { (request) =>
-        val client = new ProvisioningClient(moduleId = moduleId, password = password)
+        val client = new ProvisioningClient(host = hostname, protocol = protocol, port = port, moduleId = moduleId, password = password)
         client must resultInDeprovisionError(request, HttpURLConnection.HTTP_NOT_FOUND)
       }
     }
@@ -111,8 +149,8 @@ class ProvisioningServerSpecs
   case class change() extends ProvisioningContext {
 
     def noContent = apply {
-      forAllNoShrink(genProvisionRequestWithPlan) { (request) =>
-        val client = new ProvisioningClient(moduleId = moduleId, password = password)
+      forAllNoShrink(genProvisionRequestViaProps) { (request) =>
+        val client = new ProvisioningClient(host = hostname, protocol = protocol, port = port, moduleId = moduleId, password = password)
         (client must resultInProvisionResponse(request)) and
           (client must resultInChangePlanResponse(ChangePlanRequest(request.id, request.plan)))
       }
@@ -120,14 +158,14 @@ class ProvisioningServerSpecs
 
     def notAuthorized = apply {
       forAllNoShrink(genChangePlanRequest) { (request) =>
-        val client = new ProvisioningClient(moduleId = moduleId, password = "incorrect")
+        val client = new ProvisioningClient(host = hostname, protocol = protocol, port = port, moduleId = moduleId, password = "incorrect")
         client must resultInChangePlanError(request, HttpURLConnection.HTTP_UNAUTHORIZED)
       }
     }
 
     def notFound = apply {
       forAllNoShrink(genChangePlanRequest) { (request) =>
-        val client = new ProvisioningClient(moduleId = moduleId, password = password)
+        val client = new ProvisioningClient(host = hostname, protocol = protocol, port = port, moduleId = moduleId, password = password)
         client must resultInChangePlanError(request, HttpURLConnection.HTTP_NOT_FOUND)
       }
     }
@@ -136,13 +174,23 @@ class ProvisioningServerSpecs
 
   trait ProvisioningContext extends CommonContext {
 
-    lazy val genProvisionRequestWithPlan: Gen[ProvisionRequest] = {
+    lazy val genProvisionRequestViaProps: Gen[ProvisionRequest] = {
       for {
         id <- genNonEmptyAlphaStr
         plan <- Gen.oneOf(plans)
         email <- genEmail
       } yield {
         ProvisionRequest(id, plan, email)
+      }
+    }
+
+    lazy val genSSORequestViaProps: Gen[SSORequest] = {
+      for {
+        id <- genNonEmptyAlphaStr
+        email <- genEmail
+      } yield {
+        val timestamp = System.currentTimeMillis
+        SSORequest(id, createToken(id, email, salt, timestamp), email, ssoPath, timestamp)
       }
     }
 
@@ -158,6 +206,8 @@ class ProvisioningServerSpecs
     lazy val plans = props.getProperty("plans").split(",").toList
     lazy val moduleId = props.getProperty("moduleId")
     lazy val password = props.getProperty("password")
+    lazy val ssoPath = new URI(props.getProperty("ssoPath"))
+    lazy val salt = props.getProperty("salt")
 
   }
 

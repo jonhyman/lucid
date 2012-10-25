@@ -17,7 +17,7 @@ package com.stackmob.lucid.tests
  */
 
 import com.stackmob.lucid._
-import java.net.{HttpURLConnection, URI}
+import java.net.HttpURLConnection
 import net.liftweb.json.{compact, render}
 import net.liftweb.json.JsonDSL._
 import net.liftweb.json.scalaz.JsonScalaz._
@@ -57,11 +57,67 @@ class ProvisioningClientSpecs
     "Return 50x if there is an error handling the request"                                                              ! change().error ^
                                                                                                                         endp^
   "Single sign on should => POST /:sso-path"                                                                            ^
-    "Return 302 redirect if the single sign on was successful"                                                          ! pending ^
-    "Return 403 forbidden if authentication fails"                                                                      ! pending ^
-    "Return 404 not found if no plan exists for the given id"                                                           ! pending ^
-    "Return 50x if there is an error handling the request"                                                              ! pending ^
+    "Return 302 redirect if the single sign on was successful"                                                          ! sso().redirect ^
+    "Return 403 forbidden if authentication fails"                                                                      ! sso().forbidden ^
+    "Return 404 not found if no plan exists for the given id"                                                           ! sso().notFound ^
+    "Return 50x if there is an error handling the request"                                                              ! sso().error ^
                                                                                                                         end
+
+  case class sso() extends CommonContext {
+
+    def redirect = apply {
+      forAll(genSSORequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
+        val mockedClient = mock[HttpClient]
+        mockedClient.post(any[HttpRequest]) returns HttpResponse(
+          code = HttpURLConnection.HTTP_MOVED_TEMP,
+          body = None,
+          headers = List(new BasicHeader(HttpHeaders.LOCATION, "http://%s".format(request.path.toString))).toNel
+        ).pure[IO]
+        val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
+        client must resultInSSOResponse(request)
+      }
+    }
+
+    def forbidden = apply {
+      forAll(genSSORequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
+        val mockedClient = mock[HttpClient]
+        mockedClient.post(any[HttpRequest]) returns HttpResponse(
+          code = HttpURLConnection.HTTP_FORBIDDEN,
+          body = None,
+          headers = None
+        ).pure[IO]
+        val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
+        client must resultInSSOError(request, HttpURLConnection.HTTP_FORBIDDEN)
+      }
+    }
+
+    def notFound = apply {
+      forAll(genSSORequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
+        val mockedClient = mock[HttpClient]
+        mockedClient.post(any[HttpRequest]) returns HttpResponse(
+          code = HttpURLConnection.HTTP_NOT_FOUND,
+          body = None,
+          headers = None
+        ).pure[IO]
+        val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
+        client must resultInSSOError(request, HttpURLConnection.HTTP_NOT_FOUND)
+      }
+    }
+
+    def error = apply {
+      forAll(genSSORequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr, genErrorMsgs) { (request, module, pwd, errors) =>
+        val mockedClient = mock[HttpClient]
+        mockedClient.post(any[HttpRequest]) returns HttpResponse(
+          code = HttpURLConnection.HTTP_INTERNAL_ERROR,
+          body = compact(render((errorRootJSONKey -> toJSON(errors)))).some,
+          headers = List(jsonContentTypeHeader).toNel
+        ).pure[IO]
+        val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
+        client must resultInSSOError(request, HttpURLConnection.HTTP_INTERNAL_ERROR)
+      }
+    }
+
+  }
 
   case class provision() extends CommonContext {
 
@@ -71,7 +127,7 @@ class ProvisioningClientSpecs
         mockedClient.post(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_CREATED,
           body = compact(render(toJSON(InternalProvisionResponse(configVars)))).some,
-          headers = List(new BasicHeader(HttpHeaders.LOCATION, "http://localhost/%s/%s".format(provisionURL, request.id)), contentTypeHeader).toNel
+          headers = List(new BasicHeader(HttpHeaders.LOCATION, "http://localhost/%s/%s".format(provisionURL, request.id)), jsonContentTypeHeader).toNel
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
         client must resultInProvisionResponse(request)
@@ -110,7 +166,7 @@ class ProvisioningClientSpecs
         mockedClient.post(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_INTERNAL_ERROR,
           body = compact(render((errorRootJSONKey -> toJSON(errors)))).some,
-          headers = List(contentTypeHeader).toNel
+          headers = List(jsonContentTypeHeader).toNel
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
         client must resultInProvisionError(request, HttpURLConnection.HTTP_INTERNAL_ERROR)
@@ -166,7 +222,7 @@ class ProvisioningClientSpecs
         mockedClient.delete(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_INTERNAL_ERROR,
           body = compact(render((errorRootJSONKey -> toJSON(errors)))).some,
-          headers = List(contentTypeHeader).toNel
+          headers = List(jsonContentTypeHeader).toNel
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
         client must resultInDeprovisionError(request, HttpURLConnection.HTTP_INTERNAL_ERROR)
@@ -222,7 +278,7 @@ class ProvisioningClientSpecs
         mockedClient.put(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_INTERNAL_ERROR,
           body = compact(render((errorRootJSONKey -> toJSON(errors)))).some,
-          headers = List(contentTypeHeader).toNel
+          headers = List(jsonContentTypeHeader).toNel
         ).pure[IO]
         val client = new ProvisioningClient(httpClient = mockedClient, moduleId = module, password = pwd)
         client must resultInChangePlanError(request, HttpURLConnection.HTTP_INTERNAL_ERROR)

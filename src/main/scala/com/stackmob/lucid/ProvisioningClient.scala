@@ -16,7 +16,7 @@ package com.stackmob.lucid
  * limitations under the License.
  */
 
-import java.net.{HttpURLConnection, URI}
+import java.net.{HttpURLConnection, URLEncoder, URI}
 import java.nio.charset.Charset
 import net.liftweb.json.{compact, parse, render}
 import net.liftweb.json.JsonAST._
@@ -54,6 +54,39 @@ class ProvisioningClient(val host: String = "localhost",
                          password: String) {
 
   /**
+   * Perform an single sign on request for an app.
+   *
+   * @param request the single sign on request
+   * @return the single sign on response
+   */
+  def sso(request: SSORequest): IO[Validation[LucidError, SSOResponse]] = {
+    (for {
+      _ <- validateId(request.id)
+      _ <- validateEmail(request.email)
+      _ <- validateToken(request.token)
+      _ <- validateTimestamp(request.timestamp)
+      _ <- validateModuleId(moduleId)
+      _ <- validatePassword(password)
+      httpRequest <- validationT {
+        HttpRequest(
+          url = "%s://%s".format(protocol, request.path.toString),
+          body = "id=%s&email=%s&token=%s&timestamp=%s".format(
+            URLEncoder.encode(request.id, charset.toString),
+            URLEncoder.encode(request.email, charset.toString),
+            URLEncoder.encode(request.token, charset.toString),
+            URLEncoder.encode(request.timestamp.toString, charset.toString)).some,
+          headers = List(formURLEncodedContentTypeHeader).toNel
+        ).success[LucidError].pure[IO]
+      }
+      response <- validationT {
+        httpClient.post(httpRequest)
+          .map(handleSSOResponse(HttpURLConnection.HTTP_MOVED_TEMP, _))
+          .except(t => (UnexpectedErrorResponse(t.getMessage): LucidError).fail[SSOResponse].pure[IO])
+      }
+    } yield response).run
+  }
+
+  /**
    * Provision a module for an app.
    *
    * @param request the provisioning request
@@ -61,16 +94,16 @@ class ProvisioningClient(val host: String = "localhost",
    */
   def provision(request: ProvisionRequest): IO[Validation[LucidError, ProvisionResponse]] = {
     (for {
-      _ <- validatePassword(password)
       _ <- validateId(request.id)
       _ <- validatePlan(request.plan)
       _ <- validateEmail(request.email)
       _ <- validateModuleId(moduleId)
+      _ <- validatePassword(password)
       httpRequest <- validationT {
         HttpRequest(
           url = "%s://%s:%s/%s".format(protocol, host, port, provisionURL),
           body = compact(render(toJSON(request))).some,
-          headers = List(getBasicAuthHeader(request), contentTypeHeader).toNel
+          headers = List(getBasicAuthHeader(request), jsonContentTypeHeader).toNel
         ).success[LucidError].pure[IO]
       }
       response <- validationT {
@@ -89,9 +122,9 @@ class ProvisioningClient(val host: String = "localhost",
    */
   def deprovision(request: DeprovisionRequest): IO[Validation[LucidError, Unit]] = {
     (for {
-      _ <- validatePassword(password)
       _ <- validateId(request.id)
       _ <- validateModuleId(moduleId)
+      _ <- validatePassword(password)
       httpRequest <- validationT {
         HttpRequest(
           url = "%s://%s:%s/%s/%s".format(protocol, host, port, provisionURL, request.id),
@@ -115,15 +148,15 @@ class ProvisioningClient(val host: String = "localhost",
    */
   def changePlan(request: ChangePlanRequest): IO[Validation[LucidError, Unit]] = {
     (for {
-      _ <- validatePassword(password)
       _ <- validateId(request.id)
       _ <- validatePlan(request.plan)
       _ <- validateModuleId(moduleId)
+      _ <- validatePassword(password)
       httpRequest <- validationT {
         HttpRequest(
           url = "%s://%s:%s/%s/%s".format(protocol, host, port, provisionURL, request.id),
           body = compact(render(toJSON(request))).some,
-          headers = List(getBasicAuthHeader(request), contentTypeHeader).toNel
+          headers = List(getBasicAuthHeader(request), jsonContentTypeHeader).toNel
         ).success[LucidError].pure[IO]
       }
       resp <- validationT {
@@ -150,6 +183,10 @@ class ProvisioningClient(val host: String = "localhost",
     validateString(password, "Invalid password provided")
   }
 
+  private def validateToken(token: String): ValidationT[IO, LucidError, String] = {
+    validateString(token, "Invalid token provided")
+  }
+
   private def validateString(s: String, msg: String): ValidationT[IO, LucidError, String] = {
     validationT {
       (if (lang.StringUtils.isNotBlank(password)) {
@@ -170,6 +207,16 @@ class ProvisioningClient(val host: String = "localhost",
     }
   }
 
+  private def validateTimestamp(timestamp: Long): ValidationT[IO, LucidError, Long] = {
+    validationT {
+      (if (timestamp > 0) {
+        timestamp.success[LucidError]
+      } else {
+        InputError("Invalid email provided").fail
+      }).pure[IO]
+    }
+  }
+
   private def getBasicAuthHeader(request: BasicAuthRequest): Header = {
     val authHeader = "%s:%s".format(moduleId, password)
     val encodedAuth = "Basic %s".format(StringUtils.newStringUtf8(Base64.encodeBase64(StringUtils.getBytesUtf8(authHeader), false)))
@@ -180,23 +227,21 @@ class ProvisioningClient(val host: String = "localhost",
     if (resp.code === expectedCode) ().success else handleErrors(resp)
   }
 
+  private def handleSSOResponse(expectedCode: Int, resp: HttpResponse): Validation[LucidError, SSOResponse] = {
+    handleResponse(expectedCode, resp).flatMap(_ => validateLocationHeader(resp).flatMap(uri => SSOResponse(uri).success))
+  }
+
   private def handleProvisionResponse(expectedCode: Int, resp: HttpResponse): Validation[LucidError, ProvisionResponse] = {
     handleResponseWithBody[InternalProvisionResponse](expectedCode, resp)
-      .flatMap { r =>
-        validating(new URI(~resp.headers.flatMap(_.list.find(h => HttpHeaders.LOCATION.equalsIgnoreCase(h.getName)).map(_.getValue))))
-          .mapFailure(_ => FullErrorResponse(resp.code, nel("Invalid or missing location header")))
-          .flatMap(uri => ProvisionResponse(r.configVars, uri).success)
-      }
+      .flatMap(r => validateLocationHeader(resp).flatMap(uri => ProvisionResponse(r.configVars, uri).success))
       .flatMap(validateContentType(_, resp))
   }
 
   private def handleResponseWithBody[T : JSONR](expectedCode: Int, resp: HttpResponse): Validation[LucidError, T] = {
-    if (resp.code === expectedCode) {
+    handleResponse(expectedCode, resp).flatMap { _ =>
       fromJSON[T](parse(~resp.body))
         .mapFailure(errors => FullErrorResponse(resp.code, toErrors(errors)))
         .flatMap(validateContentType(_, resp))
-    } else {
-      handleErrors(resp)
     }
   }
 
@@ -210,9 +255,14 @@ class ProvisioningClient(val host: String = "localhost",
     }
   }
 
+  private def validateLocationHeader(resp: HttpResponse): Validation[LucidError, URI] = {
+    validating(new URI(~resp.headers.flatMap(_.list.find(h => HttpHeaders.LOCATION.equalsIgnoreCase(h.getName)).map(_.getValue))))
+      .mapFailure(_ => FullErrorResponse(resp.code, nel("Invalid or missing location header")))
+  }
+
   private def validateContentType[T](r: T, resp: HttpResponse): Validation[LucidError, T] = {
     val h = resp.headers.flatMap(_.list.find(h => HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(h.getName)))
-    if (~h.map(_.getValue.equalsIgnoreCase(contentTypeHeader.getValue))) {
+    if (~h.map(_.getValue.equalsIgnoreCase(jsonContentTypeHeader.getValue))) {
       r.success
     } else {
       UnexpectedErrorResponse("Invalid content type").fail
@@ -244,7 +294,8 @@ class ProvisioningClient(val host: String = "localhost",
 object ProvisioningClient {
   val errorRootJSONKey = "errors"
   val provisionURL = "stackmob/provision"
-  val contentTypeHeader = new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8")
+  val jsonContentTypeHeader = new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8")
+  val formURLEncodedContentTypeHeader = new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
 }
 
 sealed trait LucidError
