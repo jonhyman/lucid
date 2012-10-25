@@ -59,7 +59,11 @@ Body:
 
 Code: 
 ```
-201, 400, 401, 409, 50x
+201 - Created 
+400 - Bad Request 
+401 - Unauthorized 
+409 - Conflict 
+50x - Internal Error
 ```
 
 Content-Type: 
@@ -96,7 +100,11 @@ N/A
 
 Code: 
 ```
-204, 400, 401, 404, 50x
+204 - No Content 
+400 - Bad Request 
+401 - Unauthorized 
+404 - Not Found 
+50x - Internal Error
 ```
 
 Body: 
@@ -128,7 +136,11 @@ Body:
 
 Code: 
 ```
-204, 400, 401, 404, 50x
+204 - No Content 
+400 - Bad Request 
+401 - Unauthorized 
+404 - Not Found 
+50x - Internal Error
 ```
 
 Body: 
@@ -164,7 +176,11 @@ id=<id>&email=<email>&token=<token>&timestamp=<timestamp>
 
 Code: 
 ```
-302, 400, 403, 404, 50x
+302 - Found
+400 - Bad Request 
+403 - Forbidden 
+404 - Not Found 
+50x - Internal Error
 ```
 
 Location: 
@@ -209,7 +225,11 @@ N/A
 
 Code: 
 ```
-200, 404, 401, 50x
+200 - OK 
+400 - Bad Request 
+401 - Unauthorized 
+404 - Not Found 
+50x - Internal Error
 ```
 
 Content-Type: 
@@ -249,7 +269,11 @@ Body:
 
 Code: 
 ```
-204, 400, 401, 404, 50x
+204 - No Content 
+400 - Bad Request 
+401 - Unauthorized 
+404 - Not Found 
+50x - Internal Error
 ```
 
 Body: 
@@ -275,7 +299,11 @@ N/A
 
 Code: 
 ```
-204, 400, 401, 404, 50x
+204 - No Content 
+400 - Bad Request 
+401 - Unauthorized 
+404 - Not Found 
+50x - Internal Error
 ```
 
 Body: 
