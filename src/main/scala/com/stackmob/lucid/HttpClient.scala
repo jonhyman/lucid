@@ -89,8 +89,7 @@ class ApacheHttpClient extends HttpClient {
       import org.apache.http.HttpHost
       import org.apache.http.conn.params.ConnRoutePNames
       val proxy = new HttpHost("127.0.0.1", 8888, "http")
-      httpParams.setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy)
-      */
+      httpParams.setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy)*/
 
       request.headers.foreach(_.foreach(httpMessage.addHeader(_)))
 
@@ -105,7 +104,8 @@ class ApacheHttpClient extends HttpClient {
       HttpResponse(
         response.getStatusLine.getStatusCode,
         entity.map(EntityUtils.toString(_)),
-        Option(response.getAllHeaders).flatMap(_.toList.toNel))
+        Option(response.getAllHeaders).flatMap(_.toList.toNel)
+      )
     } finally {
       client.getConnectionManager.shutdown()
     }
