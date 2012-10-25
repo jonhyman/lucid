@@ -25,5 +25,5 @@ Edit ```src/main/resources/lucid.properties``` with the relevant values for your
 * plans - the plan names (default: planA,planB,planC)
 * moduleId - the module id (default: changeme)
 * password - the password (default: changeme)
-* ssoPath - the URL used for single sign on requests (default: localhost:8080)
 * salt - the salt (default: changeme)
+* ssoPath - the URL used for single sign on requests (default: localhost:8080)
