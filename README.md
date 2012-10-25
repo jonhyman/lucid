@@ -1,10 +1,13 @@
-Lucid
+# Lucid
 =====
 Lucid is a tool for StackMob partners to test their third party provisioning servers. The test are run using sbt and
 expect a provisioning server to be running on localhost:8080 by default, but is also configurable. The tests will generate
 a number of different requests and verify the responses are as expected.
 
-# Installation
+## Documentation
+The provisioning and config var API's are documented [here](https://github.com/stackmob/lucid/blob/master/provisioning.md)
+
+## Installation
 Lucid is written in Scala and the tests are run as [specs2](http://etorreborre.github.com/specs2/) specifications. Running
 the specs requires [sbt](http://www.scala-sbt.org/). Below are the installation steps.
 
