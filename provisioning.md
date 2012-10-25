@@ -173,7 +173,7 @@ Location:
 ```
 
 Body: 
-```json
+```
 N/A
 ```
 
@@ -198,6 +198,11 @@ GET https://partner.stackmob.com/config/:id
 Accept: 
 ```
 application/json; charset=utf-8
+```
+
+Body:
+```json
+N/A
 ```
 
 **Response**:
