@@ -81,7 +81,7 @@ Body:
 {"config-vars": { key1: value1, key2: value2, ... }}
 ```
 
-- config-vars (```Map[String, String]```): an optional map of key/value pairs that will be available via custom code at runtime
+- config-vars (```Map[String, String]```): a map of key/value pairs that will be available via custom code at runtime
 
 ## Deprovision
 **Request:**
