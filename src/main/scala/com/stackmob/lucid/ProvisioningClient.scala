@@ -189,7 +189,7 @@ class ProvisioningClient(val host: String = "localhost",
 
   private def validateString(s: String, msg: String): ValidationT[IO, LucidError, String] = {
     validationT {
-      (if (lang.StringUtils.isNotBlank(password)) {
+      (if (lang.StringUtils.isNotBlank(s)) {
         s.success[LucidError]
       } else {
         InputError(msg).fail
@@ -212,7 +212,7 @@ class ProvisioningClient(val host: String = "localhost",
       (if (timestamp > 0) {
         timestamp.success[LucidError]
       } else {
-        InputError("Invalid email provided").fail
+        InputError("Invalid timestamp provided").fail
       }).pure[IO]
     }
   }

@@ -66,7 +66,7 @@ class ProvisioningClientSpecs
   case class sso() extends CommonContext {
 
     def redirect = apply {
-      forAll(genSSORequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
+      forAllNoShrink(genSSORequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
         val mockedClient = mock[HttpClient]
         mockedClient.post(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_MOVED_TEMP,
@@ -79,7 +79,7 @@ class ProvisioningClientSpecs
     }
 
     def forbidden = apply {
-      forAll(genSSORequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
+      forAllNoShrink(genSSORequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
         val mockedClient = mock[HttpClient]
         mockedClient.post(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_FORBIDDEN,
@@ -92,7 +92,7 @@ class ProvisioningClientSpecs
     }
 
     def notFound = apply {
-      forAll(genSSORequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
+      forAllNoShrink(genSSORequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
         val mockedClient = mock[HttpClient]
         mockedClient.post(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_NOT_FOUND,
@@ -105,7 +105,7 @@ class ProvisioningClientSpecs
     }
 
     def error = apply {
-      forAll(genSSORequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr, genErrorMsgs) { (request, module, pwd, errors) =>
+      forAllNoShrink(genSSORequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr, genErrorMsgs) { (request, module, pwd, errors) =>
         val mockedClient = mock[HttpClient]
         mockedClient.post(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_INTERNAL_ERROR,
@@ -122,7 +122,7 @@ class ProvisioningClientSpecs
   case class provision() extends CommonContext {
 
     def created = apply {
-      forAll(genProvisionRequest, genNonEmptyAlphaStr, genMap, genNonEmptyAlphaStr) { (request, module, configVars, pwd) =>
+      forAllNoShrink(genProvisionRequest, genNonEmptyAlphaStr, genMap, genNonEmptyAlphaStr) { (request, module, configVars, pwd) =>
         val mockedClient = mock[HttpClient]
         mockedClient.post(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_CREATED,
@@ -135,7 +135,7 @@ class ProvisioningClientSpecs
     }
 
     def notAuthorized = apply {
-      forAll(genProvisionRequest, genNonEmptyAlphaStr, genMap, genNonEmptyAlphaStr) { (request, module, configVars, pwd) =>
+      forAllNoShrink(genProvisionRequest, genNonEmptyAlphaStr, genMap, genNonEmptyAlphaStr) { (request, module, configVars, pwd) =>
         val mockedClient = mock[HttpClient]
         mockedClient.post(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_UNAUTHORIZED,
@@ -148,7 +148,7 @@ class ProvisioningClientSpecs
     }
 
     def conflict = apply {
-      forAll(genProvisionRequest, genNonEmptyAlphaStr, genMap, genNonEmptyAlphaStr) { (request, module, configVars, pwd) =>
+      forAllNoShrink(genProvisionRequest, genNonEmptyAlphaStr, genMap, genNonEmptyAlphaStr) { (request, module, configVars, pwd) =>
         val mockedClient = mock[HttpClient]
         mockedClient.post(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_CONFLICT,
@@ -161,7 +161,7 @@ class ProvisioningClientSpecs
     }
 
     def error = apply {
-      forAll(genProvisionRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr, genErrorMsgs) { (request, module, pwd, errors) =>
+      forAllNoShrink(genProvisionRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr, genErrorMsgs) { (request, module, pwd, errors) =>
         val mockedClient = mock[HttpClient]
         mockedClient.post(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_INTERNAL_ERROR,
@@ -178,7 +178,7 @@ class ProvisioningClientSpecs
   case class deprovision() extends CommonContext {
 
     def noContent = apply {
-      forAll(genDeprovisionRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
+      forAllNoShrink(genDeprovisionRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
         val mockedClient = mock[HttpClient]
         mockedClient.delete(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_NO_CONTENT,
@@ -191,7 +191,7 @@ class ProvisioningClientSpecs
     }
 
     def notAuthorized = apply {
-      forAll(genDeprovisionRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
+      forAllNoShrink(genDeprovisionRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
         val mockedClient = mock[HttpClient]
         mockedClient.delete(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_UNAUTHORIZED,
@@ -204,7 +204,7 @@ class ProvisioningClientSpecs
     }
 
     def notFound = apply {
-      forAll(genDeprovisionRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
+      forAllNoShrink(genDeprovisionRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
         val mockedClient = mock[HttpClient]
         mockedClient.delete(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_NOT_FOUND,
@@ -217,7 +217,7 @@ class ProvisioningClientSpecs
     }
 
     def error = apply {
-      forAll(genDeprovisionRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr, genErrorMsgs) { (request, module, pwd, errors) =>
+      forAllNoShrink(genDeprovisionRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr, genErrorMsgs) { (request, module, pwd, errors) =>
         val mockedClient = mock[HttpClient]
         mockedClient.delete(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_INTERNAL_ERROR,
@@ -234,7 +234,7 @@ class ProvisioningClientSpecs
   case class change() extends CommonContext {
 
     def noContent = apply {
-      forAll(genChangePlanRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
+      forAllNoShrink(genChangePlanRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
         val mockedClient = mock[HttpClient]
         mockedClient.put(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_NO_CONTENT,
@@ -247,7 +247,7 @@ class ProvisioningClientSpecs
     }
 
     def notAuthorized = apply {
-      forAll(genChangePlanRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
+      forAllNoShrink(genChangePlanRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
         val mockedClient = mock[HttpClient]
         mockedClient.put(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_UNAUTHORIZED,
@@ -260,7 +260,7 @@ class ProvisioningClientSpecs
     }
 
     def notFound = apply {
-      forAll(genChangePlanRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
+      forAllNoShrink(genChangePlanRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr) { (request, module, pwd) =>
         val mockedClient = mock[HttpClient]
         mockedClient.put(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_NOT_FOUND,
@@ -273,7 +273,7 @@ class ProvisioningClientSpecs
     }
 
     def error = apply {
-      forAll(genChangePlanRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr, genErrorMsgs) { (request, module, pwd, errors) =>
+      forAllNoShrink(genChangePlanRequest, genNonEmptyAlphaStr, genNonEmptyAlphaStr, genErrorMsgs) { (request, module, pwd, errors) =>
         val mockedClient = mock[HttpClient]
         mockedClient.put(any[HttpRequest]) returns HttpResponse(
           code = HttpURLConnection.HTTP_INTERNAL_ERROR,
