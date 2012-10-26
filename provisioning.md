@@ -31,7 +31,7 @@ Body:
 {"errors": [ "<msg1>", "<msg2>", ... ]}
 ```
 
-- errors (```List[String]```): optional list of error messages
+- errors (```List[String]```): list of error messages
 
 ## Provision
 **Request:**
