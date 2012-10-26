@@ -136,7 +136,7 @@ trait CommonContext extends Around with Mockito {
         case scalaz.Failure(EmptyErrorResponse(code)) =>
           result(false, "HTTP error code: %s".format(code), "HTTP error code: %s".format(code), r)
         case scalaz.Failure(FullErrorResponse(code, errors)) =>
-          result(false, "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
+          result(false, "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
       }
     }
   }
@@ -161,7 +161,7 @@ trait CommonContext extends Around with Mockito {
         case scalaz.Failure(EmptyErrorResponse(code)) =>
           result(false, "HTTP error code: %s".format(code), "HTTP error code: %s".format(code), r)
         case scalaz.Failure(FullErrorResponse(code, errors)) =>
-          result(false, "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
+          result(false, "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
       }
     }
   }
@@ -180,7 +180,7 @@ trait CommonContext extends Around with Mockito {
         case scalaz.Failure(EmptyErrorResponse(code)) =>
           result(false, "HTTP error code: %s".format(code), "HTTP error code: %s".format(code), r)
         case scalaz.Failure(FullErrorResponse(code, errors)) =>
-          result(false, "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
+          result(false, "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
       }
     }
   }
@@ -199,7 +199,7 @@ trait CommonContext extends Around with Mockito {
         case scalaz.Failure(EmptyErrorResponse(code)) =>
           result(false, "HTTP error code: %s".format(code), "HTTP error code: %s".format(code), r)
         case scalaz.Failure(FullErrorResponse(code, errors)) =>
-          result(false, "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
+          result(false, "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
       }
     }
   }
@@ -218,7 +218,7 @@ trait CommonContext extends Around with Mockito {
         case scalaz.Failure(EmptyErrorResponse(c)) =>
           result(c == code, "SSO response has code: %s".format(c), "SSO response has code: %s, expected: %s".format(c, code), r)
         case scalaz.Failure(FullErrorResponse(c, errors)) =>
-          result(c == code, "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
+          result(c == code, "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
       }
     }
   }
@@ -237,7 +237,7 @@ trait CommonContext extends Around with Mockito {
         case scalaz.Failure(EmptyErrorResponse(c)) =>
           result(c == code, "Provision response has code: %s".format(c), "Provision response has code: %s, expected: %s".format(c, code), r)
         case scalaz.Failure(FullErrorResponse(c, errors)) =>
-          result(c == code, "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
+          result(c == code, "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
       }
     }
   }
@@ -256,7 +256,7 @@ trait CommonContext extends Around with Mockito {
         case scalaz.Failure(EmptyErrorResponse(c)) =>
           result(c == code, "Deprovision response has code: %s".format(c), "Deprovision response has code: %s, expected: %s".format(c, code), r)
         case scalaz.Failure(FullErrorResponse(c, errors)) =>
-          result(c == code, "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
+          result(c == code, "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
       }
     }
   }
@@ -275,7 +275,7 @@ trait CommonContext extends Around with Mockito {
         case scalaz.Failure(EmptyErrorResponse(c)) =>
           result(c == code, "Change plan response has code: %s".format(c), "Change plan response has code: %s, expected: %s".format(c, code), r)
         case scalaz.Failure(FullErrorResponse(c, errors)) =>
-          result(c == code, "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP error code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
+          result(c == code, "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), "HTTP code: %s, message: %s".format(code, errors.list.mkString(", ")), r)
       }
     }
   }
