@@ -39,7 +39,7 @@ class ProvisioningClientSpecs
   """                                                                                                                   ^
                                                                                                                         p^
   "Provisioning should => POST /provision/stackmob"                                                                     ^
-    "Return 201 ok if the provision was successful"                                                                     ! provision().created ^
+    "Return 201 created if the provision was successful"                                                                ! provision().created ^
     "Return 401 not authorized if authorization fails"                                                                  ! provision().notAuthorized ^
     "Return 409 conflict if a plan exists for the given id"                                                             ! provision().conflict ^
     "Return 50x if there is an error handling the request"                                                              ! provision().error ^
