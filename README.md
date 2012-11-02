@@ -1,6 +1,6 @@
 # Lucid
 =====
-Lucid is a tool for StackMob partners to test their third party provisioning servers. The test are run using sbt and
+Lucid is a tool for StackMob partners to test their third party provisioning servers. The tests are run using sbt and
 expect a provisioning server to be running on localhost:8080 by default, but is also configurable. The tests will generate
 a number of different requests and verify the responses are as expected.
 
