@@ -59,11 +59,11 @@ Body:
 
 Code: 
 ```
-201 - Created 
-400 - Bad Request 
-401 - Unauthorized 
-409 - Conflict 
-50x - Internal Error
+201 - Created, if the app was provisioned successfully
+400 - Bad Request, if the request was malformed
+401 - Unauthorized, if authorization failed
+409 - Conflict, if the app has already been provisioned
+50x - Internal Error, if an internal error occurred
 ```
 
 Content-Type: 
@@ -93,23 +93,23 @@ DELETE https://<hostname>/stackmob/provision/:id
 
 Body: 
 ```json
-N/A
+None
 ```
 
 **Response:**
 
 Code: 
 ```
-204 - No Content 
-400 - Bad Request 
-401 - Unauthorized 
-404 - Not Found 
-50x - Internal Error
+204 - No Content, if the deprovision was successsful
+400 - Bad Request, if the request was malformed
+401 - Unauthorized, if authorization failed
+404 - Not Found, if the app was not found
+50x - Internal Error, if an internal error occurred
 ```
 
 Body: 
 ```json
-N/A
+None
 ```
 
 ## Change Plan
@@ -136,16 +136,16 @@ Body:
 
 Code: 
 ```
-204 - No Content 
-400 - Bad Request 
-401 - Unauthorized 
-404 - Not Found 
-50x - Internal Error
+204 - No Content, if the plan change was successful
+400 - Bad Request, if the request was malformed
+401 - Unauthorized, if authorization failed
+404 - Not Found, if the app was not found
+50x - Internal Error, if an internal error occurred
 ```
 
 Body: 
 ```json
-N/A
+None
 ```
 
 ## SSO
@@ -170,17 +170,17 @@ id=<id>&email=<email>&token=<token>&timestamp=<timestamp>
 - id (```String(256)```): uniquely identifies the stackmob app sso is being attempted for
 - email (```String(256)```): the logged in user's e-mail
 - token (```String(40)```): generated token based on ```sha1(id + ':' email ':' + salt + ':' + timestamp)```
-- timestamp (```Long```): the timestamp
+- timestamp (```Long```): the timestamp in milliseconds
 
 **Response:**
 
 Code: 
 ```
-302 - Found
-400 - Bad Request 
-403 - Forbidden 
-404 - Not Found 
-50x - Internal Error
+302 - Found, if the SSO request was validated successfully and the user should be logged in
+400 - Bad Request, if the request was malformed
+403 - Forbidden, if authorization failed (see notes below)
+404 - Not Found, if the app is not found
+50x - Internal Error, if an internal error occurred
 ```
 
 Location: 
@@ -190,7 +190,7 @@ Location:
 
 Body: 
 ```
-N/A
+None
 ```
 
 Notes:
@@ -218,18 +218,18 @@ application/json; charset=utf-8
 
 Body:
 ```json
-N/A
+None
 ```
 
 **Response**:
 
 Code: 
 ```
-200 - OK 
-400 - Bad Request 
-401 - Unauthorized 
-404 - Not Found 
-50x - Internal Error
+200 - OK, if the config vars were retrieved successfully
+400 - Bad Request, if the request was malformed
+401 - Unauthorized, if authorization failed
+404 - Not Found, if the app is not found
+50x - Internal Error, if an internal error occurred
 ```
 
 Content-Type: 
@@ -269,16 +269,16 @@ Body:
 
 Code: 
 ```
-204 - No Content 
-400 - Bad Request 
-401 - Unauthorized 
-404 - Not Found 
-50x - Internal Error
+204 - No Content, if the config vars were updated successfully
+400 - Bad Request, if the request was malformed
+401 - Unauthorized, if authorization failed
+404 - Not Found, if the app is not found
+50x - Internal Error, if an internal error occurred
 ```
 
 Body: 
 ```json
-N/A
+None
 ```
 
 ## Delete
@@ -292,21 +292,21 @@ DELETE https://partner.stackmob.com/config/:id/:key
 
 Body: 
 ```json
-N/A
+None
 ```
 
 **Response:**
 
 Code: 
 ```
-204 - No Content 
-400 - Bad Request 
-401 - Unauthorized 
-404 - Not Found 
-50x - Internal Error
+204 - No Content, if the config var was deleted successfully
+400 - Bad Request, if the request was malformed
+401 - Unauthorized, if authorization failed
+404 - Not Found, if the app is not found
+50x - Internal Error, if an internal error occurred
 ```
 
 Body: 
 ```json
-N/A
+None
 ```

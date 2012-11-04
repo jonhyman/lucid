@@ -25,7 +25,7 @@ import org.specs2._
 
 class ProvisioningServerSpecs
   extends Specification
-  with ScalaCheck { override def is = sequential                                                                        ^
+  with ScalaCheck { override def is = stopOnFail ^ sequential                                                           ^
   "Provisioning Server Specs".title                                                                                     ^
   """
   Verify the functionality of the third party provisioning server.

@@ -262,7 +262,7 @@ class ProvisioningClient(val host: String = "localhost",
 
   private def validateContentType[T](r: T, resp: HttpResponse): Validation[LucidError, T] = {
     val h = resp.headers.flatMap(_.list.find(h => HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(h.getName)))
-    if (~h.map(_.getValue.equalsIgnoreCase(jsonContentTypeHeader.getValue))) {
+    if (~h.map(v => lang.StringUtils.deleteWhitespace(jsonContentTypeHeader.getValue).equalsIgnoreCase(lang.StringUtils.deleteWhitespace(v.getValue)))) {
       r.success
     } else {
       UnexpectedErrorResponse("Invalid content type").fail
