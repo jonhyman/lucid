@@ -23,7 +23,7 @@ In the case of a 400 or 50x response for any of the provisioning endpoints (not 
 
 Content-Type: 
 ```
-application/json; charset=utf-8
+application/json;charset=utf-8
 ```
 
 Body: 
@@ -43,7 +43,7 @@ POST https://<hostname>/stackmob/provision
 
 Content-Type: 
 ```
-application/json; charset=utf-8
+application/json;charset=utf-8
 ```
 
 Body: 
@@ -68,7 +68,7 @@ Code:
 
 Content-Type: 
 ```
-application/json; charset=utf-8
+application/json;charset=utf-8
 ```
 
 Location: 
@@ -122,7 +122,7 @@ PUT https://<hostname>/stackmob/provision/:id
 
 Content-Type: 
 ```
-application/json; charset=utf-8
+application/json;charset=utf-8
 ```
 
 Body: 
@@ -213,7 +213,7 @@ GET https://partner.stackmob.com/config/:id
 
 Accept: 
 ```
-application/json; charset=utf-8
+application/json;charset=utf-8
 ```
 
 Body:
@@ -234,7 +234,7 @@ Code:
 
 Content-Type: 
 ```
-application/json; charset=utf-8
+application/json;charset=utf-8
 ```
 
 Body: 
@@ -255,7 +255,7 @@ PUT https://partner.stackmob.com/config/:id
 
 Content-Type: 
 ```
-application/json; charset=utf-8
+application/json;charset=utf-8
 ```
 
 Body: 

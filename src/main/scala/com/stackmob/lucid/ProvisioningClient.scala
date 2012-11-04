@@ -262,7 +262,7 @@ class ProvisioningClient(val host: String = "localhost",
 
   private def validateContentType[T](r: T, resp: HttpResponse): Validation[LucidError, T] = {
     val h = resp.headers.flatMap(_.list.find(h => HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(h.getName)))
-    if (~h.map(v => lang.StringUtils.deleteWhitespace(jsonContentTypeHeader.getValue).equalsIgnoreCase(lang.StringUtils.deleteWhitespace(v.getValue)))) {
+    if (~h.map(v => jsonContentTypeHeader.getValue.equalsIgnoreCase(lang.StringUtils.deleteWhitespace(v.getValue)))) {
       r.success
     } else {
       UnexpectedErrorResponse("Invalid content type").fail
@@ -294,7 +294,7 @@ class ProvisioningClient(val host: String = "localhost",
 object ProvisioningClient {
   val errorRootJSONKey = "errors"
   val provisionURL = "stackmob/provision"
-  val jsonContentTypeHeader = new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8")
+  val jsonContentTypeHeader = new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=utf-8")
   val formURLEncodedContentTypeHeader = new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
 }
 
