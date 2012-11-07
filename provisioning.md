@@ -19,7 +19,7 @@ If authentication fails, the response should be a 401 not authorized.
 
 ## Error Handling
 
-In the case of a 400 or 50x response for any of the provisioning endpoints (not SSO) the body of the response should be formatted like below:
+In the case of a 40x or 50x response for any of the provisioning endpoints (not SSO) the body of the response should be formatted like below if a body exists:
 
 Content-Type: 
 ```
