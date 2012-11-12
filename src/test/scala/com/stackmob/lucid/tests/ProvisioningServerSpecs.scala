@@ -51,6 +51,9 @@ class ProvisioningServerSpecs
     "Return 403 forbidden if authentication fails"                                                                      ! sso().forbiddenAuth ^
     "Return 403 forbidden if the timestamp is older than five minutes"                                                  ! sso().forbiddenTimestamp ^
     "Return 404 not found if no plan exists for the given id"                                                           ! sso().notFound ^
+                                                                                                                        endp^
+  "Reprovisioning should => POST /provision/stackmob"                                                                   ^
+    "Return 201 created if the provision was successful"                                                                ! reprovision().created ^
                                                                                                                         end
 
   // use scalacheck to randomize requests, but we don't want duplicate requests
@@ -115,6 +118,19 @@ class ProvisioningServerSpecs
         val client = new ProvisioningClient(host = hostname, protocol = protocol, port = port, moduleId = moduleId, password = password)
         (client must resultInProvisionResponse(request)) and
           (client must resultInProvisionError(request, HttpURLConnection.HTTP_CONFLICT))
+      }
+    }
+
+  }
+
+  case class reprovision() extends ProvisioningContext {
+
+    def created() = apply {
+      forAllNoShrink(genProvisionRequestViaProps) { (request) =>
+        val client = new ProvisioningClient(host = hostname, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        ((client must resultInProvisionResponse(request)) and
+          (client must resultInDeprovisionResponse(DeprovisionRequest(request.id))) and
+          (client must resultInProvisionResponse(request)))
       }
     }
 
