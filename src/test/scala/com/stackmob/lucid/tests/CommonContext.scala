@@ -26,6 +26,8 @@ import org.specs2.matcher.{MatchResult, Expectable, Matcher}
 import org.specs2.mock.Mockito
 import org.specs2.specification._
 import ProvisioningClient._
+import scalaz._
+import Scalaz._
 
 trait CommonContext extends Around with Mockito {
 
@@ -144,7 +146,8 @@ trait CommonContext extends Around with Mockito {
   class ClientHasProvisionResponse(request: ProvisionRequest) extends Matcher[ProvisioningClient] {
     override def apply[S <: ProvisioningClient](r: Expectable[S]): MatchResult[S] = {
       val client = r.value
-      val expectedURI = new URI("%s://%s/%s/%s".format(client.protocol, client.host, provisionURL, request.id)).toString
+      val prefix = if (~Option(client.pathPrefix).map(_.length > 0)) client.pathPrefix.reverse.dropWhile(_ == '/').reverse + "/" else ""
+      val expectedURI = new URI("%s://%s/%s/%s".format(client.protocol, client.host, prefix + provisionURL, request.id)).toString
       val response = client.provision(request).unsafePerformIO
       response match {
         case scalaz.Success(s) =>

@@ -38,7 +38,7 @@ Body:
 
 URI: 
 ```
-POST https://<hostname>/stackmob/provision
+POST https://<path-prefix>/stackmob/provision
 ```
 
 Content-Type: 
@@ -73,7 +73,7 @@ application/json;charset=utf-8
 
 Location: 
 ```
-https://<hostname>/stackmob/provision/:id
+https://<path-prefix>/stackmob/provision/:id
 ```
 
 Body: 
@@ -88,7 +88,7 @@ Body:
 
 URI: 
 ```
-DELETE https://<hostname>/stackmob/provision/:id
+DELETE https://<path-prefix>/stackmob/provision/:id
 ```
 
 Body: 
@@ -117,7 +117,7 @@ None
 
 URI: 
 ```
-PUT https://<hostname>/stackmob/provision/:id
+PUT https://<path-prefix>/stackmob/provision/:id
 ```
 
 Content-Type: 

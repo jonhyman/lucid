@@ -46,6 +46,7 @@ import ValidationT._
  * @param password the basic auth password for the third party module
  */
 class ProvisioningClient(val host: String = "localhost",
+                         val pathPrefix: String = "",
                          val protocol: String = "http",
                          val port: Int = 8080,
                          val charset: Charset = UTF_8,
@@ -101,7 +102,7 @@ class ProvisioningClient(val host: String = "localhost",
       _ <- validatePassword(password)
       httpRequest <- validationT {
         HttpRequest(
-          url = "%s://%s:%s/%s".format(protocol, host, port, provisionURL),
+          url = "%s://%s:%s/%s".format(protocol, host, port, trimPathPrefix(pathPrefix) + provisionURL),
           body = compact(render(toJSON(request))).some,
           headers = List(getBasicAuthHeader(request), jsonContentTypeHeader).toNel
         ).success[LucidError].pure[IO]
@@ -127,7 +128,7 @@ class ProvisioningClient(val host: String = "localhost",
       _ <- validatePassword(password)
       httpRequest <- validationT {
         HttpRequest(
-          url = "%s://%s:%s/%s/%s".format(protocol, host, port, provisionURL, request.id),
+          url = "%s://%s:%s/%s/%s".format(protocol, host, port, trimPathPrefix(pathPrefix) + provisionURL, request.id),
           body = none,
           headers = List(getBasicAuthHeader(request)).toNel
         ).success[LucidError].pure[IO]
@@ -154,7 +155,7 @@ class ProvisioningClient(val host: String = "localhost",
       _ <- validatePassword(password)
       httpRequest <- validationT {
         HttpRequest(
-          url = "%s://%s:%s/%s/%s".format(protocol, host, port, provisionURL, request.id),
+          url = "%s://%s:%s/%s/%s".format(protocol, host, port, trimPathPrefix(pathPrefix) + provisionURL, request.id),
           body = compact(render(toJSON(request))).some,
           headers = List(getBasicAuthHeader(request), jsonContentTypeHeader).toNel
         ).success[LucidError].pure[IO]
@@ -214,6 +215,14 @@ class ProvisioningClient(val host: String = "localhost",
       } else {
         InputError("Invalid timestamp provided").fail
       }).pure[IO]
+    }
+  }
+
+  private def trimPathPrefix(prefix: String): String = {
+    if (~Option(prefix).map(_.length > 0)) {
+      prefix.reverse.dropWhile(_ === '/').reverse + "/"
+    } else {
+      ""
     }
   }
 
