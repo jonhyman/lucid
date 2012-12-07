@@ -23,7 +23,7 @@ Note, brew installs sbt >= 0.12.1 so if you're not using Hombrew ensure you have
 ## Configuration
 Edit ```src/test/resources/lucid.properties``` with the relevant values for your provisioning server.
 * protocol - http or https (default: http)
-* hostname - the hostname (default: localhost)
+* provisionPath - the provisioning hostname along with an optional path prefix (default: localhost)
 * port - the port (default: 8080)
 * plans - the plan names (default: planA,planB,planC)
 * moduleId - the module id (default: changeme)
