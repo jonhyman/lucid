@@ -19,7 +19,7 @@ libraryDependencies ++= {
     "org.apache.httpcomponents" % "httpcore" % httpVersion,
     "org.apache.httpcomponents" % "httpclient" % httpVersion,
     "org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
-    "org.specs2" %% "specs2" % "1.12.2" % "test",
+    "org.specs2" %% "specs2" % "1.12.3" % "test",
     "org.mockito" % "mockito-all" % "1.9.5" % "test",
     "org.specs2" %% "specs2-scalaz-core" % "6.0.1" % "test"
   )
