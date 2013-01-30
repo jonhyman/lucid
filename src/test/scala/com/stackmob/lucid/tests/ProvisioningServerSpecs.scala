@@ -62,7 +62,7 @@ class ProvisioningServerSpecs
   case class sso() extends ProvisioningContext {
 
     def redirect = apply {
-      forAllNoShrink(genProvisionRequest) { (request) =>
+      forAllNoShrink(genProvisionRequestViaProps) { (request) =>
         val timestamp = System.currentTimeMillis
         val token = createToken(request.id, request.email, salt, timestamp)
         val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath, protocol = protocol, port = port, moduleId = moduleId, password = password)
