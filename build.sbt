@@ -18,13 +18,20 @@ libraryDependencies ++= {
     "commons-validator" % "commons-validator" % "1.4.0",
     "org.apache.httpcomponents" % "httpcore" % httpVersion,
     "org.apache.httpcomponents" % "httpclient" % httpVersion,
-    "org.scalacheck" %% "scalacheck" % "1.10.0" % "test",
-    "org.specs2" %% "specs2" % "1.12.3" % "test",
-    "org.mockito" % "mockito-all" % "1.9.5" % "test",
-    "org.specs2" %% "specs2-scalaz-core" % "6.0.1" % "test"
+    "ch.qos.logback" % "logback-classic" % "1.0.9",
+    "org.slf4j" % "slf4j-api" % "1.7.2",
+    "org.slf4j" % "jul-to-slf4j" % "1.7.2" % "runtime",
+    "org.slf4j" % "jcl-over-slf4j" % "1.7.2" % "runtime",
+    "org.slf4j" % "log4j-over-slf4j" % "1.7.2" % "runtime",
+    "org.scalacheck" %% "scalacheck" % "1.10.0",
+    "org.specs2" %% "specs2" % "1.12.3",
+    "org.mockito" % "mockito-all" % "1.9.5",
+    "org.specs2" %% "specs2-scalaz-core" % "6.0.1"
   )
 }
 
 logBuffered := false
 
 net.virtualvoid.sbt.graph.Plugin.graphSettings
+
+seq(conscriptSettings: _*)

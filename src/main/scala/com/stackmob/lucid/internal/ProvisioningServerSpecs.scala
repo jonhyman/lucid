@@ -1,7 +1,7 @@
-package com.stackmob.lucid.tests
+package com.stackmob.lucid.internal
 
 /**
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,20 @@ package com.stackmob.lucid.tests
  * limitations under the License.
  */
 
-import com.stackmob.lucid._
+import java.io.File
 import java.net.{HttpURLConnection, URI}
 import java.util.Properties
 import org.scalacheck.Gen
 import org.scalacheck.Prop._
 import org.specs2._
+import scalaz._
+import Scalaz._
+import com.stackmob.lucid._
 
 class ProvisioningServerSpecs
   extends Specification
   with ScalaCheck { override def is = stopOnFail ^ sequential                                                           ^
-  "Provisioning Server Specs".title                                                                                     ^
-  """
-  Verify the functionality of the third party provisioning server.
-  """                                                                                                                   ^
-                                                                                                                        p^
+  "Provisioning Server Tests:".title                                                                                    ^
   "Provisioning should => POST /provision/stackmob"                                                                     ^
     "Return 201 created if the provision was successful"                                                                ! provision().created ^
     "Return 401 not authorized if authorization fails"                                                                  ! provision().notAuthorized ^
@@ -212,12 +211,13 @@ class ProvisioningServerSpecs
 
     private lazy val props = {
       val p = new Properties
-      p.load(getClass.getClassLoader.getResourceAsStream("lucid.properties"))
+      val props = Option(System.getProperty("lucid.config")).map(new File(_).toURI.toURL) | getClass.getClassLoader.getResource("lucid.properties")
+      p.load(props.openStream())
       p
     }
 
     lazy val protocol = props.getProperty("protocol")
-    lazy val provisionPath = new URI(props.getProperty("provisionPath"))
+    lazy val provisionPath = new URI("%s://%s".format(protocol, props.getProperty("provisionPath")))
     lazy val port = props.getProperty("port").toInt
     lazy val plans = props.getProperty("plans").split(",").toList
     lazy val moduleId = props.getProperty("moduleId")
