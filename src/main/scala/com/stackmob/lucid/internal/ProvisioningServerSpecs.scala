@@ -211,7 +211,7 @@ class ProvisioningServerSpecs
 
     private lazy val props = {
       val p = new Properties
-      val props = Option(System.getProperty("lucid.config")).map(new File(_).toURI.toURL) | getClass.getClassLoader.getResource("lucid.properties")
+      val props = Option(System.getProperty(LucidRunner.LUCID_CONFIG)).map(new File(_).toURI.toURL) | getClass.getClassLoader.getResource("lucid.properties")
       p.load(props.openStream())
       p
     }

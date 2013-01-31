@@ -39,4 +39,4 @@ ssoPath=localhost:8080
 ```
 
 ## Running
-1. ```lucid -Dlucid.config=lucid.properties``
+1. ```lucid /path/to/lucid.properties```

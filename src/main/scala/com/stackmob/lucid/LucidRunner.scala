@@ -32,7 +32,11 @@ class LucidRunner extends xsbti.AppMain {
 }
 
 object LucidRunner {
+  val LUCID_CONFIG = "lucid.config"
   def run(args: Array[String]): Int = {
+    if (args.length > 0) {
+      System.setProperty(LUCID_CONFIG, args(0))
+    }
     if ((new Specs2Runner).runSpecs()) 0 else 1
   }
   def main(args: Array[String]) {
