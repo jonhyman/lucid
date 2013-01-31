@@ -1,7 +1,7 @@
 package com.stackmob
 
 /**
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ package object lucid {
 
   def validating[A](a: => A): Validation[Throwable, A] = a.pure[Function0].throws
 
-  implicit def validationToValidationW[E, A](v: Validation[E, A]) = new ValidationW[E, A] {
+  implicit def validationToValidationW[E, A](v: Validation[E, A]): ValidationW[E, A] = new ValidationW[E, A] {
     override val value = v
   }
 

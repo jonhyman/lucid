@@ -1,7 +1,7 @@
 package com.stackmob.lucid
 
 /**
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,8 +31,6 @@ case class ProvisionResponse(configVars: Map[String, String], override val locat
 case class SSOResponse(override val location: URI) extends LocationResponse(location)
 abstract class LocationResponse(val location: URI)
 private[lucid] case class InternalProvisionResponse(configVars: Map[String, String])
-
-class LucidException(message: String, throwable: Throwable = null) extends Exception(message, throwable)
 
 object ProvisionRequest {
 

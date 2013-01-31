@@ -1,0 +1,10 @@
+[app]
+  version: 0.1.0-SNAPSHOT
+  org: com.stackmob
+  name: lucid
+  class: com.stackmob.lucid.LucidRunner
+[scala]
+  version: 2.9.2
+[repositories]
+  local
+  maven-central

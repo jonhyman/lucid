@@ -1,7 +1,7 @@
 package com.stackmob.lucid.tests
 
 /**
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,11 +33,7 @@ import Scalaz._
 class ProvisioningClientSpecs
   extends Specification
   with ScalaCheck { override def is = sequential                                                                        ^
-  "Provisioning Client Specs".title                                                                                     ^
-  """
-  Verify the functionality of the provisioning client.
-  """                                                                                                                   ^
-                                                                                                                        p^
+  "Provisioning Client Tests:".title                                                                                    ^
   "Provisioning should => POST /provision/stackmob"                                                                     ^
     "Return 201 created if the provision was successful"                                                                ! provision().created ^
     "Return 401 not authorized if authorization fails"                                                                  ! provision().notAuthorized ^

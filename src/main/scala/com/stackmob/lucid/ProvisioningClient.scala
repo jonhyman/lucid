@@ -1,7 +1,7 @@
 package com.stackmob.lucid
 
 /**
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ import ValidationT._
 class ProvisioningClient(val host: String = "localhost",
                          val pathPrefix: String = "",
                          val protocol: String = "http",
-                         val port: Int = 8080,
+                         val port: Int = defaultPort,
                          val charset: Charset = UTF_8,
                          httpClient: HttpClient = new ApacheHttpClient,
                          moduleId: String,
@@ -301,6 +301,7 @@ class ProvisioningClient(val host: String = "localhost",
 }
 
 object ProvisioningClient {
+  val defaultPort = 8080
   val errorRootJSONKey = "errors"
   val provisionURL = "stackmob/provision"
   val jsonContentTypeHeader = new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=utf-8")

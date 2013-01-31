@@ -1,7 +1,7 @@
 package com.stackmob.lucid
 
 /**
- * Copyright 2012 StackMob
+ * Copyright 2012-2013 StackMob
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,16 +54,18 @@ object ValidationT {
     override val run = a
   }
 
-  implicit def ValidationTPure[F[_]: Pure, E]: Pure[({type VT[X] = ValidationT[F, E, X]})#VT] = new Pure[({type VT[X] = ValidationT[F, E, X]})#VT] {
-    def pure[A](a: => A): ValidationT[F, E, A] = validationT(implicitly[Pure[F]].pure(Success(a)))
+  implicit def validationTPure[F[_]: Pure, E]: Pure[({type VT[X] = ValidationT[F, E, X]})#VT] = new Pure[({type VT[X] = ValidationT[F, E, X]})#VT] {
+    override def pure[A](a: => A): ValidationT[F, E, A] = validationT(implicitly[Pure[F]].pure(Success(a)))
   }
 
-  implicit def ValidationTFunctor[F[_]: Functor, E]: Functor[({type VT[X] = ValidationT[F, E, X]})#VT] = new Functor[({type VT[X] = ValidationT[F, E, X]})#VT] {
-    def fmap[A,B](fa: ValidationT[F, E, A], f: A => B): ValidationT[F, E, B] = fa.map(f)
+  implicit def validationTFunctor[F[_]: Functor, E]: Functor[({type VT[X] = ValidationT[F, E, X]})#VT] = new Functor[({type VT[X] = ValidationT[F, E, X]})#VT] {
+    override def fmap[A,B](fa: ValidationT[F, E, A], f: A => B): ValidationT[F, E, B] = fa.map(f)
   }
 
-  implicit def ValidationTBind[F[_], E](implicit F: Bind[F], P: Pure[F]): Bind[({type VT[X] = ValidationT[F, E, X]})#VT] = new Bind[({type VT[X] = ValidationT[F, E, X]})#VT] {
-    def bind[A, B](fa: ValidationT[F, E, A], f: A => ValidationT[F, E, B]): ValidationT[F, E, B] = fa.flatMap(f)
+  implicit def validationTBind[F[_], E](implicit F: Bind[F], P: Pure[F]): Bind[({type VT[X] = ValidationT[F, E, X]})#VT] = {
+    new Bind[({type VT[X] = ValidationT[F, E, X]})#VT] {
+      override def bind[A, B](fa: ValidationT[F, E, A], f: A => ValidationT[F, E, B]): ValidationT[F, E, B] = fa.flatMap(f)
+    }
   }
 
 }
