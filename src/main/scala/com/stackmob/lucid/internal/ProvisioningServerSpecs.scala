@@ -22,9 +22,9 @@ import java.util.Properties
 import org.scalacheck.Gen
 import org.scalacheck.Prop._
 import org.specs2._
+import com.stackmob.lucid._
 import scalaz._
 import Scalaz._
-import com.stackmob.lucid._
 
 class ProvisioningServerSpecs
   extends Specification
@@ -211,7 +211,7 @@ class ProvisioningServerSpecs
 
     private lazy val props = {
       val p = new Properties
-      val props = Option(System.getProperty(LucidRunner.LUCID_CONFIG)).map(new File(_).toURI.toURL) | getClass.getClassLoader.getResource("lucid.properties")
+      val props = LucidRunner.propertyFile | getClass.getClassLoader.getResource("lucid.properties")
       p.load(props.openStream())
       p
     }

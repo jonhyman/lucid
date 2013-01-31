@@ -16,12 +16,16 @@ package com.stackmob.lucid
  * limitations under the License.
  */
 
+import java.io.File
+import java.net.URL
 import org.slf4j.LoggerFactory
 import org.scalatools.testing.{Event, EventHandler, Logger}
 import org.scalatools.testing.Result
 import scala.collection.mutable.{Map => MutableMap}
 import org.specs2.runner.TestInterfaceRunner
 import com.stackmob.lucid.internal.ProvisioningServerSpecs
+import scalaz._
+import Scalaz._
 
 case class Exit(override val code: Int) extends xsbti.Exit
 
@@ -32,10 +36,10 @@ class LucidRunner extends xsbti.AppMain {
 }
 
 object LucidRunner {
-  val LUCID_CONFIG = "lucid.config"
+  var propertyFile = none[URL]
   def run(args: Array[String]): Int = {
     if (args.length > 0) {
-      System.setProperty(LUCID_CONFIG, args(0))
+      propertyFile = (new File(args(0))).toURI.toURL.some
     }
     if ((new Specs2Runner).runSpecs()) 0 else 1
   }
