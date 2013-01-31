@@ -17,7 +17,6 @@ package com.stackmob.lucid.tests
  */
 
 import com.stackmob.lucid._
-import com.stackmob.lucid.internal._
 import java.net.HttpURLConnection
 import net.liftweb.json.{compact, render}
 import net.liftweb.json.JsonDSL._

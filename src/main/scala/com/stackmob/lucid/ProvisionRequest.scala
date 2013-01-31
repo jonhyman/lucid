@@ -32,8 +32,6 @@ case class SSOResponse(override val location: URI) extends LocationResponse(loca
 abstract class LocationResponse(val location: URI)
 private[lucid] case class InternalProvisionResponse(configVars: Map[String, String])
 
-class LucidException(message: String, throwable: Throwable = null) extends Exception(message, throwable)
-
 object ProvisionRequest {
 
   private[lucid] val idJSONKey = "id"

@@ -1,4 +1,4 @@
-package com.stackmob.lucid.internal
+package com.stackmob.lucid
 
 /**
  * Copyright 2012-2013 StackMob
@@ -64,7 +64,8 @@ class ProvisioningServerSpecs
       forAllNoShrink(genProvisionRequestViaProps) { (request) =>
         val timestamp = System.currentTimeMillis
         val token = createToken(request.id, request.email, salt, timestamp)
-        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath,
+          protocol = protocol, port = port, moduleId = moduleId, password = password)
         (client must resultInProvisionResponse(request)) and
           (client must resultInSSOResponse(SSORequest(request.id, token, request.email, ssoPath, timestamp)))
       }
@@ -72,14 +73,16 @@ class ProvisioningServerSpecs
 
     def forbiddenAuth = apply {
       forAllNoShrink(genSSORequestViaProps) { (request) =>
-        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath,
+          protocol = protocol, port = port, moduleId = moduleId, password = password)
         client must resultInSSOError(request.copy(email = "invalid@invalid.com"), HttpURLConnection.HTTP_FORBIDDEN)
       }
     }
 
     def forbiddenTimestamp = apply {
       forAllNoShrink(genSSORequestViaProps) { (request) =>
-        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath,
+          protocol = protocol, port = port, moduleId = moduleId, password = password)
         client must resultInSSOError(
           request.copy(token = createToken(request.id, request.email, salt, 1), timestamp = 1),
           HttpURLConnection.HTTP_FORBIDDEN
@@ -89,7 +92,8 @@ class ProvisioningServerSpecs
 
     def notFound = apply {
       forAllNoShrink(genSSORequestViaProps) { (request) =>
-        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath,
+          protocol = protocol, port = port, moduleId = moduleId, password = password)
         client must resultInSSOError(request, HttpURLConnection.HTTP_NOT_FOUND)
       }
     }
@@ -100,21 +104,24 @@ class ProvisioningServerSpecs
 
     def created = apply {
       forAllNoShrink(genProvisionRequestViaProps) { (request) =>
-        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath,
+          protocol = protocol, port = port, moduleId = moduleId, password = password)
         client must resultInProvisionResponse(request)
       }
     }
 
     def notAuthorized = apply {
       forAllNoShrink(genProvisionRequestViaProps) { (request) =>
-        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath, protocol = protocol, port = port, moduleId = moduleId, password = "incorrect")
+        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath,
+          protocol = protocol, port = port, moduleId = moduleId, password = "incorrect")
         client must resultInProvisionError(request, HttpURLConnection.HTTP_UNAUTHORIZED)
       }
     }
 
     def conflict = apply {
       forAllNoShrink(genProvisionRequestViaProps) { (request) =>
-        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath,
+          protocol = protocol, port = port, moduleId = moduleId, password = password)
         (client must resultInProvisionResponse(request)) and
           (client must resultInProvisionError(request, HttpURLConnection.HTTP_CONFLICT))
       }
@@ -126,7 +133,8 @@ class ProvisioningServerSpecs
 
     def created() = apply {
       forAllNoShrink(genProvisionRequestViaProps) { (request) =>
-        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath,
+          protocol = protocol, port = port, moduleId = moduleId, password = password)
         ((client must resultInProvisionResponse(request)) and
           (client must resultInDeprovisionResponse(DeprovisionRequest(request.id))) and
           (client must resultInProvisionResponse(request)))
@@ -139,7 +147,8 @@ class ProvisioningServerSpecs
 
     def noContent = apply {
       forAllNoShrink(genProvisionRequestViaProps) { (request) =>
-        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath,
+          protocol = protocol, port = port, moduleId = moduleId, password = password)
         ((client must resultInProvisionResponse(request)) and
           (client must resultInDeprovisionResponse(DeprovisionRequest(request.id))))
       }
@@ -147,14 +156,16 @@ class ProvisioningServerSpecs
 
     def notAuthorized = apply {
       forAllNoShrink(genDeprovisionRequest) { (request) =>
-        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath, protocol = protocol, port = port, moduleId = moduleId, password = "incorrect")
+        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath,
+          protocol = protocol, port = port, moduleId = moduleId, password = "incorrect")
         client must resultInDeprovisionError(request, HttpURLConnection.HTTP_UNAUTHORIZED)
       }
     }
 
     def notFound = apply {
       forAllNoShrink(genDeprovisionRequest) { (request) =>
-        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath,
+          protocol = protocol, port = port, moduleId = moduleId, password = password)
         client must resultInDeprovisionError(request, HttpURLConnection.HTTP_NOT_FOUND)
       }
     }
@@ -165,7 +176,8 @@ class ProvisioningServerSpecs
 
     def noContent = apply {
       forAllNoShrink(genProvisionRequestViaProps) { (request) =>
-        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath,
+          protocol = protocol, port = port, moduleId = moduleId, password = password)
         (client must resultInProvisionResponse(request)) and
           (client must resultInChangePlanResponse(ChangePlanRequest(request.id, request.plan)))
       }
@@ -173,14 +185,16 @@ class ProvisioningServerSpecs
 
     def notAuthorized = apply {
       forAllNoShrink(genChangePlanRequest) { (request) =>
-        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath, protocol = protocol, port = port, moduleId = moduleId, password = "incorrect")
+        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath,
+          protocol = protocol, port = port, moduleId = moduleId, password = "incorrect")
         client must resultInChangePlanError(request, HttpURLConnection.HTTP_UNAUTHORIZED)
       }
     }
 
     def notFound = apply {
       forAllNoShrink(genChangePlanRequest) { (request) =>
-        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath, protocol = protocol, port = port, moduleId = moduleId, password = password)
+        val client = new ProvisioningClient(host = provisionPath.getHost, pathPrefix = provisionPath.getPath,
+          protocol = protocol, port = port, moduleId = moduleId, password = password)
         client must resultInChangePlanError(request, HttpURLConnection.HTTP_NOT_FOUND)
       }
     }

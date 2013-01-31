@@ -23,7 +23,6 @@ import org.scalatools.testing.{Event, EventHandler, Logger}
 import org.scalatools.testing.Result
 import scala.collection.mutable.{Map => MutableMap}
 import org.specs2.runner.TestInterfaceRunner
-import com.stackmob.lucid.internal.ProvisioningServerSpecs
 import scalaz._
 import Scalaz._
 

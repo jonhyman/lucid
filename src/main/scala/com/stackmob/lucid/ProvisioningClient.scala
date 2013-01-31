@@ -48,7 +48,7 @@ import ValidationT._
 class ProvisioningClient(val host: String = "localhost",
                          val pathPrefix: String = "",
                          val protocol: String = "http",
-                         val port: Int = 8080,
+                         val port: Int = defaultPort,
                          val charset: Charset = UTF_8,
                          httpClient: HttpClient = new ApacheHttpClient,
                          moduleId: String,
@@ -301,6 +301,7 @@ class ProvisioningClient(val host: String = "localhost",
 }
 
 object ProvisioningClient {
+  val defaultPort = 8080
   val errorRootJSONKey = "errors"
   val provisionURL = "stackmob/provision"
   val jsonContentTypeHeader = new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json;charset=utf-8")

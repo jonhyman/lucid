@@ -23,7 +23,7 @@ package object lucid {
 
   def validating[A](a: => A): Validation[Throwable, A] = a.pure[Function0].throws
 
-  implicit def validationToValidationW[E, A](v: Validation[E, A]) = new ValidationW[E, A] {
+  implicit def validationToValidationW[E, A](v: Validation[E, A]): ValidationW[E, A] = new ValidationW[E, A] {
     override val value = v
   }
 

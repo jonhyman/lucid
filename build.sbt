@@ -2,9 +2,9 @@ name := "lucid"
 
 organization := "com.stackmob"
 
-version := "0.1.0-SNAPSHOT"
-
 scalaVersion := "2.9.2"
+
+crossScalaVersions := Seq("2.9.2")
 
 scalacOptions ++= Seq("-unchecked", "-deprecation")
 
@@ -32,6 +32,48 @@ libraryDependencies ++= {
 
 logBuffered := false
 
+releaseSettings
+
+org.scalastyle.sbt.ScalastylePlugin.Settings
+
 net.virtualvoid.sbt.graph.Plugin.graphSettings
 
 seq(conscriptSettings: _*)
+
+publishTo <<= version { v: String =>
+  val nexus = "https://oss.sonatype.org/"
+  if (v.trim.endsWith("SNAPSHOT")) {
+    Some("snapshots" at nexus + "content/repositories/snapshots")
+  } else {
+    Some("releases" at nexus + "service/local/staging/deploy/maven2")
+  }
+}
+
+publishMavenStyle := true
+
+publishArtifact in Test := false
+
+pomIncludeRepository := { _ => false }
+
+pomExtra := (
+  <url>https://github.com/stackmob/lucid</url>
+  <licenses>
+    <license>	
+      <name>Apache 2</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <url>git@github.com:stackmob/lucid.git</url>
+    <connection>scm:git:git@github.com:stackmob/lucid.git</connection>
+  </scm>
+  <developers>
+    <developer>
+      <id>taylorleese</id>
+      <name>Taylor Leese</name>
+      <url>http://www.stackmob.com</url>
+    </developer>
+  </developers>
+)
+
