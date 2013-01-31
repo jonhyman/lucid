@@ -57,7 +57,7 @@ object LaunchConfigReleaseStep {
   private def commitLaunchConfig(st: State, newVersion: String) {
     val vcs = Project.extract(st).get(versionControlSystem).getOrElse(sys.error("Unable to get version control system."))
     vcs.add(launchConfig) !! st.log
-    vcs.commit("launchconfig updated for " + newVersion) ! st.log
+    vcs.commit("launchconfig updated to %s".format(newVersion)) ! st.log
   }
 
 }
