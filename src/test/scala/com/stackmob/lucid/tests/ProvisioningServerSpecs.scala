@@ -217,7 +217,7 @@ class ProvisioningServerSpecs
     }
 
     lazy val protocol = props.getProperty("protocol")
-    lazy val provisionPath = new URI(props.getProperty("provisionPath"))
+    lazy val provisionPath = new URI("%s://%s".format(protocol, props.getProperty("provisionPath")))
     lazy val port = props.getProperty("port").toInt
     lazy val plans = props.getProperty("plans").split(",").toList
     lazy val moduleId = props.getProperty("moduleId")
