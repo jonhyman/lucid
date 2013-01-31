@@ -13,7 +13,7 @@ Lucid is written in Scala and can be installed via [Conscript](https://github.co
 ### Mac
 1. Install Conscript: ```curl https://raw.github.com/n8han/conscript/master/setup.sh | sh```
 2. Edit .bash_profile: ```PATH=$PATH:~/bin```
-3. Install Lucid: ```cs stackmob/lucid/0.1.0```
+3. Install Lucid: ```cs stackmob/lucid/0.2.0```
 
 ### Configuration
 Create ```lucid.properties``` with the relevant values for your provisioning server.
