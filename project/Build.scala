@@ -21,9 +21,17 @@ import ReleasePlugin._
 import ReleaseKeys._
 import sbt._
 
-object LaunchConfigReleaseStep {
+object LucidReleaseSteps {
 
   val launchConfig = "src/main/conscript/lucid/launchconfig"
+  val readme = "README.md"
+
+  lazy val setReadmeReleaseVersion: ReleaseStep = { st: State =>
+    val releaseVersions = getReleasedVersion(st)
+    updateReadme(st, releaseVersions._1)
+    commitReadme(st, releaseVersions._1)
+    st
+  }
 
   lazy val setLaunchConfigReleaseVersion: ReleaseStep = { st: State =>
     val releaseVersions = getReleasedVersion(st)
@@ -54,10 +62,28 @@ object LaunchConfigReleaseStep {
     }
   }
 
+  private def updateReadme(st: State, newVersion: String) {
+    val conscriptR = """stackmob/lucid/\d+\.\d+\.\d+""".r
+    val oldReadme = Source.fromFile(readme).mkString
+    val out = new PrintWriter(readme, "UTF-8")
+    try {
+      val newReadme = conscriptR.replaceFirstIn(oldReadme, "stackmob/lucid/%s".format(newVersion))
+      newReadme.foreach(out.write(_))
+    } finally {
+      out.close()
+    }
+  }
+
   private def commitLaunchConfig(st: State, newVersion: String) {
     val vcs = Project.extract(st).get(versionControlSystem).getOrElse(sys.error("Unable to get version control system."))
     vcs.add(launchConfig) !! st.log
     vcs.commit("launchconfig updated to %s".format(newVersion)) ! st.log
+  }
+
+  private def commitReadme(st: State, newVersion: String) {
+    val vcs = Project.extract(st).get(versionControlSystem).getOrElse(sys.error("Unable to get version control system."))
+    vcs.add(readme) !! st.log
+    vcs.commit("README.md updated to %s".format(newVersion)) ! st.log
   }
 
 }

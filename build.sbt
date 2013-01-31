@@ -3,7 +3,7 @@ import org.scalastyle.sbt.ScalastylePlugin
 import sbtrelease._
 import ReleaseKeys._
 import ReleaseStateTransformations._
-import LaunchConfigReleaseStep._
+import LucidReleaseSteps._
 
 name := "lucid"
 
@@ -54,6 +54,7 @@ releaseProcess := Seq[ReleaseStep](
   setReleaseVersion,
   commitReleaseVersion,
   setLaunchConfigReleaseVersion,
+  setReadmeReleaseVersion,
   tagRelease,
   publishArtifacts,
   setNextVersion,
