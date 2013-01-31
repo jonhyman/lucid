@@ -16,7 +16,6 @@ package com.stackmob.lucid
  * limitations under the License.
  */
 
-import com.stackmob.lucid._
 import java.net.URI
 import org.apache.commons.codec.digest.DigestUtils
 import org.scalacheck.Arbitrary._

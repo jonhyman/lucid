@@ -1,3 +1,10 @@
+import net.virtualvoid.sbt.graph.Plugin
+import org.scalastyle.sbt.ScalastylePlugin
+import sbtrelease._
+import ReleaseKeys._
+import ReleaseStateTransformations._
+import LaunchConfigReleaseStep._
+
 name := "lucid"
 
 organization := "com.stackmob"
@@ -32,13 +39,28 @@ libraryDependencies ++= {
 
 logBuffered := false
 
-releaseSettings
+ScalastylePlugin.Settings
 
-org.scalastyle.sbt.ScalastylePlugin.Settings
-
-net.virtualvoid.sbt.graph.Plugin.graphSettings
+Plugin.graphSettings
 
 seq(conscriptSettings: _*)
+
+releaseSettings
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  setLaunchConfigReleaseVersion,
+  tagRelease,
+  publishArtifacts,
+  setNextVersion,
+  commitNextVersion,
+  setLaunchConfigNextVersion,
+  pushChanges
+)
 
 publishTo <<= version { v: String =>
   val nexus = "https://oss.sonatype.org/"
@@ -76,4 +98,3 @@ pomExtra := (
     </developer>
   </developers>
 )
-
