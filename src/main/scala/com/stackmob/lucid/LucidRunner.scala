@@ -36,14 +36,10 @@ class LucidRunner extends xsbti.AppMain {
 }
 
 object LucidRunner {
-  private val logger = LoggerFactory.getLogger("LucidRunner")
   var propertyFile = none[URL]
   def run(args: Array[String]): Int = {
-    if (args.length > 0) {
+    if (args.length > 0 && args(0) != "--version") {
       propertyFile = (new File(args(0))).toURI.toURL.some
-      propertyFile.foreach(f => logger.debug("Using property file: %s".format(f)))
-    } else {
-      logger.debug("Using defaults.")
     }
     if ((new Specs2Runner).runSpecs()) 0 else 1
   }
