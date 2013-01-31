@@ -1,5 +1,5 @@
 [app]
-  version: 0.2.0-SNAPSHOT
+  version: 0.2.0
   org: com.stackmob
   name: lucid
   class: com.stackmob.lucid.LucidRunner
