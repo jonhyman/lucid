@@ -329,7 +329,7 @@ module StackMob
       begin
         user = provisioner.provision(id, email, plan)
       rescue ArgumentError
-        error!("An account with StackMob ID #{id} has already been provisioned", 409)
+        error!("An account with StackMob ID #{id} has already been provisioned", Rack::Utils::SYMBOL_TO_STATUS_CODE[:conflict])
       end
 
       # Update these config vars accordingly
