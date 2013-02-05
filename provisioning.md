@@ -314,7 +314,7 @@ module StackMob
       end
     end
 
-    # Provisions a new Developer/App/Company linked to a StackMob ID
+    # Provisions a new User linked to a StackMob ID
     post :provision do
       content_type STACKMOB_REQUIRED_CONTENT_TYPE
 
