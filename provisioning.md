@@ -2,6 +2,7 @@
 This guide provides a summary of how to get started writing a provisioning server and a SSO service. Code samples are in Ruby using the [Grape API Framework](https://github.com/intridea/grape).
 
 The outline for what we need to do is as follows:
+
 1. Setup Lucid to target our local server
 2. Create an object which is responsible for handling provisioning in our database.
 3. Create an Provisioning Service API that StackMob will hit when a user adds, changes, or deletes the plan for a module.
@@ -139,6 +140,7 @@ Body:
 When a user first provisions an app, StackMob will hit this endpoint.
 
 **Request sent to your server will look like:**
+
 URI: 
 ```
 POST https://<path-prefix>/stackmob/provision
@@ -362,7 +364,7 @@ Now that we have our provision service, StackMob can provision accounts in our d
 StackMob to sign users into your site. This is accomplished by setting up an endpoint that checks for a shared secret
 and signs a user in if it matches.
 
-Code sample is below.
+Code sample follows the specification.
 
 **Request sent to your server:**
 
